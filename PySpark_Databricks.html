@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PySpark & Databricks Cheatsheet</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base:    '#0e0e11',
+          surface: '#16161b',
+          raised:  '#1e1e26',
+          border:  'rgba(255,255,255,0.07)',
+          border2: 'rgba(255,255,255,0.12)',
+          ink:     '#e8e6f0',
+          muted:   '#9b97ad',
+          faint:   '#5e5a6e',
+          accent:  '#7c6af7',
+          accent2: '#a78bfa',
+          teal:    '#2dd4bf',
+        },
+        fontFamily: {
+          sans: ['Syne', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+        fontSize: {
+          '2xs': '0.65rem',
+          xs:    '0.75rem',
+          sm:    '0.8125rem',
+        },
+      }
+    }
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Syntax colours — not expressible as plain Tailwind utilities */
+  .kw  { color: #c084fc; }
+  .fn  { color: #34d399; }
+  .st  { color: #fb923c; }
+  .cm  { color: #5e5a6e; font-style: italic; }
+
+  /* Card label: bright enough to read against #1e1e26 */
+  .card-label-text { color: #a0a0b8; }
+
+  /* Anchor offset — set precisely by JS on load */
+  .section, .part-divider, .part-heading { scroll-margin-top: 90px; }
+
+  /* ── Fixed chrome: header + sidebar as one unit ── */
+  #chrome {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  #chrome > header {
+    flex-shrink: 0;
+    pointer-events: all;
+  }
+
+  #sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    background: #0e0e11;
+    pointer-events: all;
+    transition: width 0.25s ease;
+    align-self: flex-start;
+    height: 100%;
+  }
+  #sidebar.collapsed { width: 44px; }
+
+  #nav-body {
+    overflow-y: auto;
+    flex: 1;
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+  #sidebar.collapsed #nav-body   { display: none; }
+  #sidebar.collapsed #nav-toggle { justify-content: center; padding: 10px 0; }
+  #sidebar.collapsed #nav-label  { display: none; }
+  #sidebar.collapsed #nav-icon   { transform: rotate(180deg); }
+  #nav-icon { transition: transform 0.25s ease; }
+
+  #main-wrapper {
+    margin-left: 220px;
+    transition: margin-left 0.25s ease;
+  }
+  body.nav-collapsed #main-wrapper { margin-left: 44px; }
+
+  #nav-body::-webkit-scrollbar { width: 3px; }
+  #nav-body::-webkit-scrollbar-track { background: transparent; }
+  #nav-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+  pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-x: hidden;
+    min-width: 0;
+  }
+
+  .grid > div { min-width: 0; overflow: hidden; }
+</style>
+</head>
+<body class="bg-base text-ink font-sans text-sm">
+
+<!-- ═══ CHROME: header + sidebar as one fixed unit ═══ -->
+<div id="chrome">
+
+<header class="bg-surface border-b border-border flex items-center gap-6 px-10 py-5">
+  <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+       style="background: linear-gradient(135deg, #7c6af7, #2dd4bf)">⚡</div>
+  <div>
+    <h1 class="text-lg font-bold tracking-tight text-ink">PySpark &amp; Databricks Cheatsheet</h1>
+    <p class="text-xs text-faint mt-0.5">Imports · DataFrames · Functions · Delta Lake · dbutils · Unity Catalog</p>
+  </div>
+  <div class="ml-auto flex gap-2 flex-wrap">
+    <span class="font-mono text-2xs px-3 py-0.5 rounded-full border border-border2 text-muted bg-raised">PySpark 3.x</span>
+    <span class="font-mono text-2xs px-3 py-0.5 rounded-full border border-border2 text-muted bg-raised">Delta Lake</span>
+    <span class="font-mono text-2xs px-3 py-0.5 rounded-full border border-border2 text-muted bg-raised">Databricks Runtime</span>
+  </div>
+</header>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav id="sidebar">
+
+  <!-- Toggle bar -->
+  <div id="nav-toggle"
+       class="flex items-center justify-between px-3.5 py-2.5 cursor-pointer border-b border-border flex-shrink-0 select-none hover:bg-raised transition-colors"
+       onclick="toggleNav()">
+    <span id="nav-label" class="text-2xs font-semibold uppercase tracking-widest text-faint">Contents</span>
+    <span id="nav-icon" class="text-faint text-[16px] leading-none">✕</span>
+  </div>
+
+  <!-- Scrollable links -->
+  <div id="nav-body" class="px-3 py-3">
+
+    <p class="text-2xs font-semibold uppercase tracking-widest text-faint px-2 pt-0 pb-1.5">PySpark</p>
+    <a href="#imports" class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">Imports</a>
+    <a href="#session" class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">SparkSession</a>
+    <a href="#create"  class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">Creating DataFrames</a>
+    <a href="#inspect" class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">Inspection &amp; basic ops</a>
+    <a href="#functions" class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">Key functions (F.*)</a>
+    <a href="#groupby" class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">GroupBy &amp; aggregations</a>
+    <a href="#joins"   class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">Joins, sort &amp; dedup</a>
+    <a href="#sql"     class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">SQL interface</a>
+    <a href="#write"   class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">Writing data</a>
+    <a href="#perf"    class="block text-xs text-muted hover:text-ink hover:bg-raised rounded px-2 py-1 transition-colors">Performance tips</a>
+
+    <p class="text-2xs font-semibold uppercase tracking-widest text-faint px-2 pt-4 pb-1.5">Databricks</p>
+    <a href="#magic"   class="block text-xs text-accent2/80 hover:text-accent2 hover:bg-accent/10 rounded px-2 py-1 transition-colors">Magic commands</a>
+    <a href="#display" class="block text-xs text-accent2/80 hover:text-accent2 hover:bg-accent/10 rounded px-2 py-1 transition-colors">Display &amp; output</a>
+    <a href="#dbutils" class="block text-xs text-accent2/80 hover:text-accent2 hover:bg-accent/10 rounded px-2 py-1 transition-colors">dbutils</a>
+    <a href="#delta"   class="block text-xs text-accent2/80 hover:text-accent2 hover:bg-accent/10 rounded px-2 py-1 transition-colors">Delta Lake</a>
+    <a href="#unity"   class="block text-xs text-accent2/80 hover:text-accent2 hover:bg-accent/10 rounded px-2 py-1 transition-colors">Unity Catalog</a>
+    <a href="#paths"   class="block text-xs text-accent2/80 hover:text-accent2 hover:bg-accent/10 rounded px-2 py-1 transition-colors">I/O paths &amp; SQL</a>
+  </div>
+</nav>
+
+</div><!-- end #chrome -->
+
+<!-- ═══ MAIN ═══ -->
+<div id="main-wrapper">
+<main class="px-10 py-8">
+
+  <!-- ─── PART 1: PYSPARK ─── -->
+  <h2 class="part-heading text-2xl font-bold tracking-tight mb-1">PySpark <span class="text-accent2">Core</span></h2>
+  <p class="text-sm text-muted mb-8">Standard API — works on any Spark cluster</p>
+
+  <!-- IMPORTS -->
+  <div class="section mb-10" id="imports">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Imports</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">core</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="kw">from</span> pyspark.sql <span class="kw">import</span> SparkSession
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> functions <span class="kw">as</span> F
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.types <span class="kw">import</span> *</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">common types</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="kw">from</span> pyspark.sql.types <span class="kw">import</span> (
+  StructType, StructField,
+  StringType, IntegerType,
+  FloatType, DoubleType,
+  BooleanType, DateType,
+  TimestampType, ArrayType,
+  MapType, LongType
+)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">ml &amp; streaming</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="kw">from</span> pyspark.ml <span class="kw">import</span> Pipeline
+<span class="kw">from</span> pyspark.ml.feature <span class="kw">import</span> VectorAssembler
+<span class="kw">from</span> pyspark.ml.classification <span class="kw">import</span> ...
+<span class="kw">from</span> pyspark.streaming <span class="kw">import</span> StreamingContext</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SPARKSESSION -->
+  <div class="section mb-10" id="session">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">SparkSession</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">create / get</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">spark = (SparkSession
+  .<span class="fn">builder</span>
+  .<span class="fn">appName</span>(<span class="st">"MyApp"</span>)
+  .<span class="fn">master</span>(<span class="st">"local[*]"</span>)
+  .<span class="fn">config</span>(<span class="st">"spark.sql.shuffle.partitions"</span>, <span class="st">"8"</span>)
+  .<span class="fn">getOrCreate</span>())
+
+sc = spark.sparkContext  <span class="cm"># SparkContext</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">useful config</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">spark.conf.<span class="fn">set</span>(<span class="st">"spark.sql.shuffle.partitions"</span>, 200)
+spark.conf.<span class="fn">get</span>(<span class="st">"spark.sql.shuffle.partitions"</span>)
+
+spark.<span class="fn">stop</span>()           <span class="cm"># stop the session</span>
+spark.version          <span class="cm"># PySpark version</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CREATING DATAFRAMES -->
+  <div class="section mb-10" id="create">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Creating DataFrames</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">from data</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># from list of tuples</span>
+df = spark.<span class="fn">createDataFrame</span>(
+  [(1, <span class="st">"Alice"</span>), (2, <span class="st">"Bob"</span>)],
+  schema=[<span class="st">"id"</span>, <span class="st">"name"</span>]
+)
+
+<span class="cm"># from list of dicts</span>
+df = spark.<span class="fn">createDataFrame</span>([
+  {<span class="st">"id"</span>: 1, <span class="st">"name"</span>: <span class="st">"Alice"</span>}
+])
+
+<span class="cm"># from Pandas</span>
+df = spark.<span class="fn">createDataFrame</span>(pandas_df)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">from files</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df = spark.read.<span class="fn">csv</span>(<span class="st">"path.csv"</span>, header=<span class="kw">True</span>,
+                     inferSchema=<span class="kw">True</span>)
+df = spark.read.<span class="fn">json</span>(<span class="st">"path.json"</span>)
+df = spark.read.<span class="fn">parquet</span>(<span class="st">"path.parquet"</span>)
+df = spark.read.<span class="fn">orc</span>(<span class="st">"path.orc"</span>)
+df = spark.read.<span class="fn">text</span>(<span class="st">"path.txt"</span>)
+
+<span class="cm"># with explicit schema</span>
+df = spark.read.<span class="fn">schema</span>(schema).<span class="fn">csv</span>(...)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">define schema</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">schema = <span class="fn">StructType</span>([
+  <span class="fn">StructField</span>(<span class="st">"id"</span>,   <span class="fn">IntegerType</span>(), <span class="kw">False</span>),
+  <span class="fn">StructField</span>(<span class="st">"name"</span>, <span class="fn">StringType</span>(),  <span class="kw">True</span>),
+  <span class="fn">StructField</span>(<span class="st">"age"</span>,  <span class="fn">IntegerType</span>(), <span class="kw">True</span>),
+])
+<span class="cm"># nullable = True/False (3rd arg)</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INSPECTION -->
+  <div class="section mb-10" id="inspect">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Inspection &amp; basic ops</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">inspect</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">show</span>(5)             <span class="cm"># print first n rows</span>
+df.<span class="fn">show</span>(truncate=<span class="kw">False</span>)
+df.<span class="fn">printSchema</span>()       <span class="cm"># tree schema</span>
+df.<span class="fn">dtypes</span>              <span class="cm"># list of (col, type)</span>
+df.<span class="fn">columns</span>             <span class="cm"># list of column names</span>
+df.<span class="fn">schema</span>              <span class="cm"># StructType</span>
+df.<span class="fn">count</span>()             <span class="cm"># row count</span>
+df.<span class="fn">describe</span>().<span class="fn">show</span>()   <span class="cm"># summary stats</span>
+df.<span class="fn">summary</span>().<span class="fn">show</span>()   <span class="cm"># extended stats</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">select &amp; filter</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">select</span>(<span class="st">"col1"</span>, <span class="st">"col2"</span>)
+df.<span class="fn">select</span>(df.col1, F.<span class="fn">col</span>(<span class="st">"col2"</span>))
+
+df.<span class="fn">filter</span>(F.<span class="fn">col</span>(<span class="st">"age"</span>) &gt; 30)
+df.<span class="fn">where</span>(<span class="st">"age &gt; 30"</span>)      <span class="cm"># SQL string</span>
+df.<span class="fn">filter</span>(
+  (F.<span class="fn">col</span>(<span class="st">"age"</span>) &gt; 18) &amp;
+  (F.<span class="fn">col</span>(<span class="st">"city"</span>) == <span class="st">"NYC"</span>)
+)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">add / rename / drop cols</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">withColumn</span>(<span class="st">"new"</span>, F.<span class="fn">col</span>(<span class="st">"a"</span>) * 2)
+df.<span class="fn">withColumnRenamed</span>(<span class="st">"old"</span>, <span class="st">"new"</span>)
+df.<span class="fn">drop</span>(<span class="st">"col1"</span>, <span class="st">"col2"</span>)
+df.<span class="fn">toDF</span>(*[<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>])   <span class="cm"># rename all</span>
+
+<span class="cm"># cast type</span>
+df.<span class="fn">withColumn</span>(<span class="st">"age"</span>,
+  F.<span class="fn">col</span>(<span class="st">"age"</span>).<span class="fn">cast</span>(<span class="fn">IntegerType</span>()))</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FUNCTIONS -->
+  <div class="section mb-10" id="functions">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Key functions (F.*)</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">string</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">F.<span class="fn">upper</span>(<span class="st">"col"</span>)   F.<span class="fn">lower</span>(<span class="st">"col"</span>)
+F.<span class="fn">trim</span>(<span class="st">"col"</span>)    F.<span class="fn">ltrim</span>()  F.<span class="fn">rtrim</span>()
+F.<span class="fn">length</span>(<span class="st">"col"</span>)  F.<span class="fn">substr</span>(<span class="st">"col"</span>, 1, 3)
+F.<span class="fn">concat</span>(c1, c2) F.<span class="fn">concat_ws</span>(<span class="st">"-"</span>, c1, c2)
+F.<span class="fn">split</span>(<span class="st">"col"</span>, <span class="st">","</span>)
+F.<span class="fn">regexp_replace</span>(<span class="st">"col"</span>, <span class="st">"pat"</span>, <span class="st">"rep"</span>)
+F.<span class="fn">regexp_extract</span>(<span class="st">"col"</span>, <span class="st">"pat"</span>, 0)
+F.<span class="fn">like</span>() / F.<span class="fn">rlike</span>()</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">date &amp; time</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">F.<span class="fn">current_date</span>()
+F.<span class="fn">current_timestamp</span>()
+F.<span class="fn">to_date</span>(<span class="st">"col"</span>, <span class="st">"yyyy-MM-dd"</span>)
+F.<span class="fn">to_timestamp</span>(<span class="st">"col"</span>, <span class="st">"fmt"</span>)
+F.<span class="fn">date_format</span>(<span class="st">"col"</span>, <span class="st">"yyyy-MM"</span>)
+F.<span class="fn">datediff</span>(end, start)
+F.<span class="fn">date_add</span>(<span class="st">"col"</span>, 7)
+F.<span class="fn">year</span>() F.<span class="fn">month</span>() F.<span class="fn">dayofmonth</span>()
+F.<span class="fn">hour</span>() F.<span class="fn">minute</span>() F.<span class="fn">second</span>()</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">math &amp; logic</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">F.<span class="fn">abs</span>()  F.<span class="fn">round</span>()  F.<span class="fn">ceil</span>()  F.<span class="fn">floor</span>()
+F.<span class="fn">sqrt</span>()  F.<span class="fn">pow</span>(col, 2)  F.<span class="fn">log</span>()
+F.<span class="fn">greatest</span>(c1, c2)  F.<span class="fn">least</span>(c1, c2)
+
+F.<span class="fn">when</span>(cond, val).<span class="fn">otherwise</span>(val2)
+F.<span class="fn">isnull</span>(<span class="st">"col"</span>)  F.<span class="fn">isnotnull</span>(<span class="st">"col"</span>)
+F.<span class="fn">coalesce</span>(c1, c2, ...)  <span class="cm"># first non-null</span>
+F.<span class="fn">lit</span>(42)                 <span class="cm"># literal value</span>
+F.<span class="fn">col</span>(<span class="st">"name"</span>)             <span class="cm"># column ref</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">aggregate</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">F.<span class="fn">count</span>()  F.<span class="fn">countDistinct</span>()
+F.<span class="fn">sum</span>()    F.<span class="fn">avg</span>()    F.<span class="fn">mean</span>()
+F.<span class="fn">min</span>()    F.<span class="fn">max</span>()
+F.<span class="fn">stddev</span>()   F.<span class="fn">variance</span>()
+F.<span class="fn">collect_list</span>()  F.<span class="fn">collect_set</span>()
+F.<span class="fn">first</span>()  F.<span class="fn">last</span>()
+F.<span class="fn">approx_count_distinct</span>()</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">array &amp; map</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">F.<span class="fn">array</span>(c1, c2)    F.<span class="fn">array_contains</span>()
+F.<span class="fn">explode</span>(<span class="st">"arr_col"</span>)   <span class="cm"># row per element</span>
+F.<span class="fn">explode_outer</span>()       <span class="cm"># keeps nulls</span>
+F.<span class="fn">posexplode</span>()          <span class="cm"># with index</span>
+F.<span class="fn">size</span>(<span class="st">"arr_col"</span>)
+F.<span class="fn">map_keys</span>()  F.<span class="fn">map_values</span>()
+F.<span class="fn">create_map</span>(k1, v1, k2, v2)
+F.<span class="fn">flatten</span>(<span class="st">"nested_arr"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">udf</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># define a UDF</span>
+@F.<span class="fn">udf</span>(<span class="fn">StringType</span>())
+<span class="kw">def</span> <span class="fn">my_udf</span>(val):
+    <span class="kw">return</span> val.<span class="fn">upper</span>()
+
+df.<span class="fn">withColumn</span>(<span class="st">"out"</span>, <span class="fn">my_udf</span>(F.<span class="fn">col</span>(<span class="st">"name"</span>)))
+
+<span class="cm"># pandas UDF (vectorized, faster)</span>
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> pandas_udf
+@<span class="fn">pandas_udf</span>(<span class="st">"double"</span>)
+<span class="kw">def</span> <span class="fn">fast_udf</span>(s: pd.Series) -&gt; pd.Series:
+    <span class="kw">return</span> s * 2</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GROUPBY -->
+  <div class="section mb-10" id="groupby">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">GroupBy &amp; aggregations</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">groupby</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">groupBy</span>(<span class="st">"dept"</span>).<span class="fn">agg</span>(
+  F.<span class="fn">count</span>(<span class="st">"*"</span>).<span class="fn">alias</span>(<span class="st">"cnt"</span>),
+  F.<span class="fn">avg</span>(<span class="st">"salary"</span>).<span class="fn">alias</span>(<span class="st">"avg_sal"</span>),
+  F.<span class="fn">max</span>(<span class="st">"age"</span>).<span class="fn">alias</span>(<span class="st">"max_age"</span>)
+)
+
+df.<span class="fn">groupBy</span>(<span class="st">"a"</span>, <span class="st">"b"</span>).<span class="fn">count</span>()
+df.<span class="fn">groupBy</span>(<span class="st">"a"</span>).<span class="fn">pivot</span>(<span class="st">"b"</span>).<span class="fn">sum</span>(<span class="st">"val"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">window functions</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">w = (Window
+  .<span class="fn">partitionBy</span>(<span class="st">"dept"</span>)
+  .<span class="fn">orderBy</span>(F.<span class="fn">desc</span>(<span class="st">"salary"</span>)))
+
+df.<span class="fn">withColumn</span>(<span class="st">"rank"</span>,  F.<span class="fn">rank</span>().<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"dense"</span>, F.<span class="fn">dense_rank</span>().<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"rn"</span>,    F.<span class="fn">row_number</span>().<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"lag1"</span>,  F.<span class="fn">lag</span>(<span class="st">"col"</span>,1).<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"lead1"</span>,F.<span class="fn">lead</span>(<span class="st">"col"</span>,1).<span class="fn">over</span>(w))
+
+<span class="cm"># rolling sum over last 3 rows</span>
+w2 = w.<span class="fn">rowsBetween</span>(-2, 0)
+df.<span class="fn">withColumn</span>(<span class="st">"roll"</span>, F.<span class="fn">sum</span>(<span class="st">"val"</span>).<span class="fn">over</span>(w2))</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JOINS -->
+  <div class="section mb-10" id="joins">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Joins, sort &amp; dedup</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">joins</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># types: inner, left, right, full,</span>
+<span class="cm">#        left_semi, left_anti, cross</span>
+df1.<span class="fn">join</span>(df2, on=<span class="st">"id"</span>, how=<span class="st">"inner"</span>)
+df1.<span class="fn">join</span>(df2, on=[<span class="st">"a"</span>, <span class="st">"b"</span>], how=<span class="st">"left"</span>)
+df1.<span class="fn">join</span>(df2,
+  df1.id == df2.user_id, how=<span class="st">"left"</span>)
+
+<span class="cm"># broadcast join (small table)</span>
+df1.<span class="fn">join</span>(F.<span class="fn">broadcast</span>(small_df), <span class="st">"id"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">sort, dedup &amp; null</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">sort</span>(<span class="st">"age"</span>)
+df.<span class="fn">orderBy</span>(F.<span class="fn">desc</span>(<span class="st">"salary"</span>), F.<span class="fn">asc</span>(<span class="st">"name"</span>))
+
+df.<span class="fn">distinct</span>()
+df.<span class="fn">dropDuplicates</span>([<span class="st">"col1"</span>, <span class="st">"col2"</span>])
+
+df.<span class="fn">dropna</span>()
+df.<span class="fn">dropna</span>(subset=[<span class="st">"a"</span>, <span class="st">"b"</span>])
+df.<span class="fn">fillna</span>(0)
+df.<span class="fn">fillna</span>({<span class="st">"a"</span>: 0, <span class="st">"b"</span>: <span class="st">"NA"</span>})</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">set ops &amp; union</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df1.<span class="fn">union</span>(df2)           <span class="cm"># by position</span>
+df1.<span class="fn">unionByName</span>(df2)     <span class="cm"># by col name</span>
+df1.<span class="fn">intersect</span>(df2)
+df1.<span class="fn">subtract</span>(df2)
+df.<span class="fn">limit</span>(100)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SQL -->
+  <div class="section mb-10" id="sql">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">SQL interface</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">register &amp; query</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">createOrReplaceTempView</span>(<span class="st">"users"</span>)
+df.<span class="fn">createOrReplaceGlobalTempView</span>(<span class="st">"users"</span>)
+
+result = spark.<span class="fn">sql</span>(<span class="st">"""
+  SELECT dept, AVG(salary) AS avg_sal
+  FROM users
+  WHERE age &gt; 25
+  GROUP BY dept
+  ORDER BY avg_sal DESC
+"""</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">catalog</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">spark.catalog.<span class="fn">listTables</span>()
+spark.catalog.<span class="fn">listDatabases</span>()
+spark.catalog.<span class="fn">listColumns</span>(<span class="st">"table"</span>)
+spark.catalog.<span class="fn">tableExists</span>(<span class="st">"db.tbl"</span>)
+spark.catalog.<span class="fn">dropTempView</span>(<span class="st">"users"</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WRITE -->
+  <div class="section mb-10" id="write">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Writing data</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">save modes &amp; formats</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># modes: overwrite, append, ignore, error</span>
+df.write.<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">parquet</span>(<span class="st">"out/"</span>)
+df.write.<span class="fn">mode</span>(<span class="st">"append"</span>).<span class="fn">csv</span>(<span class="st">"out/"</span>)
+df.write.<span class="fn">json</span>(<span class="st">"out/data.json"</span>)
+df.write.<span class="fn">orc</span>(<span class="st">"out/"</span>)
+
+df.write.<span class="fn">partitionBy</span>(<span class="st">"year"</span>, <span class="st">"month"</span>)
+   .<span class="fn">parquet</span>(<span class="st">"out/"</span>)
+
+df.<span class="fn">toPandas</span>()   <span class="cm"># collect to Pandas df</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">save as table / jdbc</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.write.<span class="fn">saveAsTable</span>(<span class="st">"db.my_table"</span>)
+df.write.<span class="fn">insertInto</span>(<span class="st">"my_table"</span>)
+
+df.write.<span class="fn">format</span>(<span class="st">"jdbc"</span>).<span class="fn">options</span>(
+  url=<span class="st">"jdbc:postgresql://host/db"</span>,
+  dbtable=<span class="st">"schema.table"</span>,
+  user=<span class="st">"user"</span>, password=<span class="st">"pass"</span>
+).<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">save</span>()</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PERFORMANCE -->
+  <div class="section mb-10" id="perf">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Performance tips</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">caching &amp; partitions</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">cache</span>()              <span class="cm"># memory cache</span>
+df.<span class="fn">persist</span>()            <span class="cm"># MEMORY_AND_DISK</span>
+df.<span class="fn">unpersist</span>()
+
+df.<span class="fn">repartition</span>(8)       <span class="cm"># shuffle repartition</span>
+df.<span class="fn">repartition</span>(8, <span class="st">"key"</span>)<span class="cm"># by column</span>
+df.<span class="fn">coalesce</span>(4)           <span class="cm"># reduce (no shuffle)</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">explain &amp; debug</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">df.<span class="fn">explain</span>()            <span class="cm"># physical plan</span>
+df.<span class="fn">explain</span>(<span class="kw">True</span>)        <span class="cm"># all plans</span>
+df.<span class="fn">explain</span>(<span class="st">"formatted"</span>) <span class="cm"># readable plan</span>
+
+spark.sparkContext.<span class="fn">setLogLevel</span>(<span class="st">"WARN"</span>)
+<span class="cm"># Spark UI → http://localhost:4040</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── DIVIDER ─── -->
+  <div class="part-divider flex items-center gap-4 my-12">
+    <div class="flex-1 h-px bg-border"></div>
+    <span class="text-2xs font-semibold uppercase tracking-widest text-faint whitespace-nowrap">Databricks additions</span>
+    <div class="flex-1 h-px bg-border"></div>
+  </div>
+
+  <!-- ─── PART 2: DATABRICKS ─── -->
+  <h2 class="part-heading text-2xl font-bold tracking-tight mb-1"><span class="text-accent2">Databricks</span> Specifics</h2>
+  <p class="text-sm text-muted mb-6">Delta Lake · dbutils · Unity Catalog · Notebook magic</p>
+
+  <div class="bg-teal/5 border border-teal/20 rounded-xl px-5 py-4 mb-8 text-xs text-muted leading-relaxed">
+    <span class="text-teal font-semibold">Tip:</span> In Databricks, <code class="font-mono text-ink">spark</code> and <code class="font-mono text-ink">dbutils</code> are pre-initialized — no imports or SparkSession setup needed. Delta Lake is the default table format for all reads and writes.
+  </div>
+
+  <!-- MAGIC COMMANDS -->
+  <div class="section mb-10" id="magic">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Notebook magic commands</span>
+      <span class="font-mono text-2xs px-2 py-0.5 rounded-full bg-accent/15 text-accent2 border border-accent/30">Databricks only</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">cell-level language switching</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># switch language for a single cell</span>
+%python   <span class="cm"># Python (default)</span>
+%sql      <span class="cm"># run SQL directly</span>
+%scala    <span class="cm"># Scala</span>
+%r        <span class="cm"># R</span>
+%sh       <span class="cm"># shell commands on driver</span>
+%md       <span class="cm"># Markdown (docs/headings)</span>
+%fs       <span class="cm"># shorthand for dbutils.fs</span>
+%run ./other_notebook  <span class="cm"># run another nb</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">install &amp; config</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">%pip install pandas==2.0.3
+%pip install -r requirements.txt
+
+<span class="cm"># restart Python after pip installs</span>
+dbutils.library.<span class="fn">restartPython</span>()
+
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DISPLAY -->
+  <div class="section mb-10" id="display">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Display &amp; output</span>
+      <span class="font-mono text-2xs px-2 py-0.5 rounded-full bg-accent/15 text-accent2 border border-accent/30">Databricks only</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">display functions</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># rich interactive table — use over .show()</span>
+<span class="fn">display</span>(df)
+<span class="fn">display</span>(df.<span class="fn">limit</span>(100))
+
+<span class="cm"># render a chart directly</span>
+<span class="fn">display</span>(df.<span class="fn">groupBy</span>(<span class="st">"dept"</span>).<span class="fn">count</span>())
+
+<span class="cm"># display HTML, matplotlib, plotly</span>
+<span class="fn">displayHTML</span>(<span class="st">"&lt;h1&gt;Hello&lt;/h1&gt;"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">widgets (notebook params)</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">dbutils.widgets.<span class="fn">text</span>(<span class="st">"env"</span>, <span class="st">"dev"</span>, <span class="st">"Env"</span>)
+dbutils.widgets.<span class="fn">dropdown</span>(<span class="st">"mode"</span>, <span class="st">"full"</span>,
+  [<span class="st">"full"</span>, <span class="st">"incremental"</span>])
+dbutils.widgets.<span class="fn">multiselect</span>(<span class="st">"cols"</span>,
+  <span class="st">"a"</span>, [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>])
+
+env = dbutils.widgets.<span class="fn">get</span>(<span class="st">"env"</span>)
+
+dbutils.widgets.<span class="fn">remove</span>(<span class="st">"env"</span>)
+dbutils.widgets.<span class="fn">removeAll</span>()</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DBUTILS -->
+  <div class="section mb-10" id="dbutils">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">dbutils</span>
+      <span class="font-mono text-2xs px-2 py-0.5 rounded-full bg-accent/15 text-accent2 border border-accent/30">Databricks only</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">file system (dbutils.fs)</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">dbutils.fs.<span class="fn">ls</span>(<span class="st">"dbfs:/path"</span>)
+dbutils.fs.<span class="fn">ls</span>(<span class="st">"/Volumes/catalog/schema/vol"</span>)
+dbutils.fs.<span class="fn">mkdirs</span>(<span class="st">"dbfs:/path/newdir"</span>)
+dbutils.fs.<span class="fn">cp</span>(<span class="st">"dbfs:/src"</span>, <span class="st">"dbfs:/dst"</span>,
+              recurse=<span class="kw">True</span>)
+dbutils.fs.<span class="fn">mv</span>(<span class="st">"dbfs:/old"</span>, <span class="st">"dbfs:/new"</span>)
+dbutils.fs.<span class="fn">rm</span>(<span class="st">"dbfs:/path"</span>, recurse=<span class="kw">True</span>)
+dbutils.fs.<span class="fn">head</span>(<span class="st">"dbfs:/file.txt"</span>, 1024)
+dbutils.fs.<span class="fn">put</span>(<span class="st">"dbfs:/file.txt"</span>, <span class="st">"content"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">secrets</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># retrieve a secret (never printed)</span>
+pw = dbutils.secrets.<span class="fn">get</span>(
+  scope=<span class="st">"my-scope"</span>, key=<span class="st">"db-password"</span>)
+
+dbutils.secrets.<span class="fn">list</span>(<span class="st">"my-scope"</span>)
+dbutils.secrets.<span class="fn">listScopes</span>()
+
+<span class="cm"># use in spark config</span>
+spark.conf.<span class="fn">set</span>(<span class="st">"fs.azure.account.key...."</span>,
+  dbutils.secrets.<span class="fn">get</span>(<span class="st">"scope"</span>, <span class="st">"key"</span>))</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">notebook control</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># run another notebook, pass args</span>
+result = dbutils.notebook.<span class="fn">run</span>(
+  <span class="st">"./child_notebook"</span>,
+  timeout_seconds=3600,
+  arguments={<span class="st">"env"</span>: <span class="st">"prod"</span>})
+
+<span class="cm"># exit current notebook with a value</span>
+dbutils.notebook.<span class="fn">exit</span>(<span class="st">"done"</span>)
+
+ctx = dbutils.notebook.entry_point\
+  .<span class="fn">getDbutils</span>().<span class="fn">notebook</span>().<span class="fn">getContext</span>()
+path = ctx.<span class="fn">notebookPath</span>().<span class="fn">get</span>()</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">help &amp; discovery</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">dbutils.<span class="fn">help</span>()           <span class="cm"># list all modules</span>
+dbutils.fs.<span class="fn">help</span>()        <span class="cm"># fs commands</span>
+dbutils.secrets.<span class="fn">help</span>()  <span class="cm"># secrets commands</span>
+dbutils.widgets.<span class="fn">help</span>()  <span class="cm"># widget commands</span>
+
+<span class="cm"># restart Python kernel</span>
+dbutils.library.<span class="fn">restartPython</span>()</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DELTA LAKE -->
+  <div class="section mb-10" id="delta">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Delta Lake</span>
+      <span class="font-mono text-2xs px-2 py-0.5 rounded-full bg-accent/15 text-accent2 border border-accent/30">Databricks native</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">read &amp; write delta</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="kw">from</span> delta.tables <span class="kw">import</span> DeltaTable
+
+<span class="cm"># read</span>
+df = spark.read.<span class="fn">table</span>(<span class="st">"catalog.schema.table"</span>)
+df = spark.read.<span class="fn">format</span>(<span class="st">"delta"</span>).<span class="fn">load</span>(<span class="st">"/path"</span>)
+
+<span class="cm"># write</span>
+df.write.<span class="fn">format</span>(<span class="st">"delta"</span>).<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">save</span>(<span class="st">"/path"</span>)
+df.<span class="fn">writeTo</span>(<span class="st">"catalog.schema.table"</span>).<span class="fn">createOrReplace</span>()
+
+<span class="cm"># write with partition</span>
+df.write.<span class="fn">format</span>(<span class="st">"delta"</span>)\
+  .<span class="fn">partitionBy</span>(<span class="st">"year"</span>, <span class="st">"month"</span>)\
+  .<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">save</span>(<span class="st">"/path"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">update, delete, upsert (merge)</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">dt = DeltaTable.<span class="fn">forName</span>(spark, <span class="st">"db.my_table"</span>)
+dt = DeltaTable.<span class="fn">forPath</span>(spark, <span class="st">"/path/delta"</span>)
+
+<span class="cm"># update rows</span>
+dt.<span class="fn">update</span>(condition=<span class="st">"id = 1"</span>,
+          set={<span class="st">"status"</span>: <span class="st">"'active'"</span>})
+
+<span class="cm"># delete rows</span>
+dt.<span class="fn">delete</span>(<span class="st">"status = 'inactive'"</span>)
+
+<span class="cm"># merge / upsert</span>
+dt.<span class="fn">alias</span>(<span class="st">"t"</span>).<span class="fn">merge</span>(
+  source_df.<span class="fn">alias</span>(<span class="st">"s"</span>), <span class="st">"t.id = s.id"</span>)\
+  .<span class="fn">whenMatchedUpdateAll</span>()\
+  .<span class="fn">whenNotMatchedInsertAll</span>()\
+  .<span class="fn">execute</span>()</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">time travel</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># read a previous version</span>
+df = spark.read.<span class="fn">format</span>(<span class="st">"delta"</span>)\
+  .<span class="fn">option</span>(<span class="st">"versionAsOf"</span>, 3)\
+  .<span class="fn">load</span>(<span class="st">"/path/delta"</span>)
+
+df = spark.read.<span class="fn">format</span>(<span class="st">"delta"</span>)\
+  .<span class="fn">option</span>(<span class="st">"timestampAsOf"</span>, <span class="st">"2024-01-01"</span>)\
+  .<span class="fn">load</span>(<span class="st">"/path/delta"</span>)
+
+<span class="cm"># view history</span>
+dt.<span class="fn">history</span>().<span class="fn">show</span>()
+
+<span class="cm"># restore to version</span>
+spark.<span class="fn">sql</span>(<span class="st">"RESTORE TABLE t VERSION AS OF 5"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">maintenance &amp; optimization</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># compact small files</span>
+spark.<span class="fn">sql</span>(<span class="st">"OPTIMIZE catalog.schema.table"</span>)
+
+<span class="cm"># Z-order (co-locate similar data)</span>
+spark.<span class="fn">sql</span>(<span class="st">"""OPTIMIZE my_table
+  ZORDER BY (customer_id, date)"""</span>)
+
+<span class="cm"># remove old file versions (default 7 days)</span>
+spark.<span class="fn">sql</span>(<span class="st">"VACUUM my_table RETAIN 168 HOURS"</span>)
+dt.<span class="fn">vacuum</span>(168)
+
+<span class="cm"># table details and stats</span>
+spark.<span class="fn">sql</span>(<span class="st">"DESCRIBE DETAIL my_table"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"DESCRIBE HISTORY my_table"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">create delta table (DDL)</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">spark.<span class="fn">sql</span>(<span class="st">"""
+  CREATE TABLE IF NOT EXISTS db.sales (
+    id      INT,
+    amount  DOUBLE,
+    dt      DATE
+  ) USING DELTA
+  PARTITIONED BY (dt)
+  LOCATION 's3://bucket/path/'
+"""</span>)
+
+<span class="cm"># clone a table (cheap snapshot)</span>
+spark.<span class="fn">sql</span>(<span class="st">"""
+  CREATE TABLE db.sales_clone
+  SHALLOW CLONE db.sales
+"""</span>)
+<span class="cm"># DEEP CLONE copies data too</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">auto-optimize (table properties)</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">spark.<span class="fn">sql</span>(<span class="st">"""
+  ALTER TABLE my_table SET TBLPROPERTIES (
+    'delta.autoOptimize.optimizeWrite' = 'true',
+    'delta.autoOptimize.autoCompact'   = 'true'
+  )
+"""</span>)
+
+<span class="cm"># enable for all new tables (session)</span>
+spark.conf.<span class="fn">set</span>(
+  <span class="st">"spark.databricks.delta.properties"</span>
+  <span class="st">".defaults.autoOptimize.optimizeWrite"</span>,
+  <span class="st">"true"</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- UNITY CATALOG -->
+  <div class="section mb-10" id="unity">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Unity Catalog</span>
+      <span class="font-mono text-2xs px-2 py-0.5 rounded-full bg-accent/15 text-accent2 border border-accent/30">Databricks only</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">three-level namespace</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># catalog.schema.table</span>
+df = spark.read.<span class="fn">table</span>(
+  <span class="st">"my_catalog.my_schema.my_table"</span>)
+
+spark.<span class="fn">sql</span>(<span class="st">"USE CATALOG my_catalog"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"USE SCHEMA my_schema"</span>)
+
+spark.<span class="fn">sql</span>(<span class="st">"SHOW CATALOGS"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"SHOW SCHEMAS IN my_catalog"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"SHOW TABLES IN my_catalog.my_schema"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">volumes (non-tabular files)</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># Volumes = Unity Catalog managed file store</span>
+<span class="cm"># path: /Volumes/catalog/schema/volume/</span>
+
+df = spark.read.<span class="fn">csv</span>(
+  <span class="st">"/Volumes/prod/raw/uploads/data.csv"</span>,
+  header=<span class="kw">True</span>)
+
+dbutils.fs.<span class="fn">ls</span>(<span class="st">"/Volumes/prod/raw/uploads/"</span>)
+dbutils.fs.<span class="fn">cp</span>(<span class="st">"file:/local"</span>,
+  <span class="st">"/Volumes/prod/raw/uploads/"</span>)</pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">grants &amp; access control</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3">spark.<span class="fn">sql</span>(<span class="st">"""
+  GRANT SELECT ON TABLE
+    my_catalog.my_schema.sales
+  TO `analysts@company.com`
+"""</span>)
+
+spark.<span class="fn">sql</span>(<span class="st">"""
+  GRANT ALL PRIVILEGES ON SCHEMA
+    my_catalog.my_schema
+  TO `data_engineers`
+"""</span>)
+
+spark.<span class="fn">sql</span>(<span class="st">"SHOW GRANTS ON TABLE my_table"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"REVOKE SELECT ON TABLE ..."</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PATHS -->
+  <div class="section mb-10" id="paths">
+    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-border">
+      <span class="text-[16px] font-semibold tracking-tight text-ink">Databricks-specific I/O paths</span>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-2.5">
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">path prefixes</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># DBFS (Databricks File System)</span>
+<span class="st">"dbfs:/FileStore/tables/data.csv"</span>
+
+<span class="cm"># Unity Catalog Volumes</span>
+<span class="st">"/Volumes/catalog/schema/volume/file"</span>
+
+<span class="cm"># Cloud storage</span>
+<span class="st">"s3://bucket/path/"</span>         <span class="cm"># AWS</span>
+<span class="st">"abfss://container@acct..."</span> <span class="cm"># Azure ADLS</span>
+<span class="st">"gs://bucket/path/"</span>         <span class="cm"># GCP</span>
+
+<span class="cm"># local driver node</span>
+<span class="st">"file:/tmp/localfile.csv"</span></pre>
+      </div>
+
+      <div class="bg-surface border border-border rounded-xl hover:border-border2 transition-colors">
+        <div class="text-2xs font-semibold uppercase tracking-widest bg-raised border-b border-border px-3.5 py-2 whitespace-normal card-label-text">spark.sql passthrough patterns</div>
+        <pre class="font-mono text-xs leading-relaxed text-ink px-3.5 py-3"><span class="cm"># read SQL result into a df</span>
+df = spark.<span class="fn">sql</span>(<span class="st">"SELECT * FROM my_table"</span>)
+
+<span class="cm"># use Python variable inside SQL</span>
+date_str = <span class="st">"2024-01-01"</span>
+df = spark.<span class="fn">sql</span>(<span class="fn">f</span><span class="st">"""
+  SELECT * FROM sales
+  WHERE dt &gt;= '{date_str}'
+"""</span>)
+
+<span class="cm"># common DDL shortcuts</span>
+spark.<span class="fn">sql</span>(<span class="st">"DROP TABLE IF EXISTS db.tbl"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"TRUNCATE TABLE db.tbl"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"MSCK REPAIR TABLE db.tbl"</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+</div>
+
+<footer class="border-t border-border text-center text-xs text-faint py-6 mt-4" id="page-footer">
+  PySpark &amp; Databricks Cheatsheet &nbsp;·&nbsp; Generated with Claude
+</footer>
+
+<script>
+  function syncLayout() {
+    const headerH = document.querySelector('#chrome > header').getBoundingClientRect().height;
+    const wrapper = document.getElementById('main-wrapper');
+    const footer  = document.getElementById('page-footer');
+    wrapper.style.paddingTop = headerH + 'px';
+    footer.style.marginLeft  = document.body.classList.contains('nav-collapsed') ? '44px' : '220px';
+    footer.style.transition  = 'margin-left 0.25s ease';
+    const scrollGap = headerH + 16;
+    document.querySelectorAll('.section, .part-divider, .part-heading').forEach(el => {
+      el.style.scrollMarginTop = scrollGap + 'px';
+    });
+  }
+
+  function toggleNav() {
+    const nav     = document.getElementById('sidebar');
+    const icon    = document.getElementById('nav-icon');
+    const footer  = document.getElementById('page-footer');
+    nav.classList.toggle('collapsed');
+    document.body.classList.toggle('nav-collapsed');
+    const collapsed = nav.classList.contains('collapsed');
+    icon.textContent = collapsed ? '☰' : '✕';
+    footer.style.marginLeft = collapsed ? '44px' : '220px';
+  }
+
+  window.addEventListener('DOMContentLoaded', syncLayout);
+  window.addEventListener('resize', syncLayout);
+</script>
+
+</body>
+</html>
