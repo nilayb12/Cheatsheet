@@ -1,0 +1,280 @@
+/* ================================================================
+   PySpark & Databricks Cheatsheet — panel.css
+   Centered modal dialog (replaces side drawer)
+   ================================================================ */
+
+/* ── Overlay ──────────────────────────────────────────────────── */
+#detail-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 199;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  /* used for entrance animation */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+#detail-overlay.open {
+  display: block;
+  opacity: 1;
+}
+
+/* ── Modal ────────────────────────────────────────────────────── */
+#detail-panel {
+  position: fixed;
+  /* centered */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -46%) scale(0.97);
+  opacity: 0;
+
+  width: min(780px, 92vw);
+  max-height: min(82vh, 740px);
+
+  background: #16161b;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 0 0 1px rgba(124,106,247,0.08),
+    0 24px 80px rgba(0,0,0,0.7),
+    0 8px 24px rgba(0,0,0,0.4);
+
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1),
+    opacity   0.2s ease;
+  pointer-events: none;
+}
+
+#detail-panel.open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Two-column layout inside modal ──────────────────────────── */
+#detail-inner {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Left: overview + when to use + gotchas */
+#detail-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+}
+
+/* Right: example code */
+#detail-right {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem 1.25rem 1.25rem;
+}
+
+#detail-left::-webkit-scrollbar,
+#detail-right::-webkit-scrollbar { width: 3px; }
+#detail-left::-webkit-scrollbar-track,
+#detail-right::-webkit-scrollbar-track { background: transparent; }
+#detail-left::-webkit-scrollbar-thumb,
+#detail-right::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+/* ── Modal header ─────────────────────────────────────────────── */
+#detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+#detail-section-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5e5a6e;
+  margin-bottom: 3px;
+}
+
+#detail-card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e8e6f0;
+  line-height: 1.3;
+  letter-spacing: -0.2px;
+}
+
+#detail-close {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #5e5a6e;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 5px 9px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+#detail-close:hover {
+  background: #1e1e26;
+  color: #e8e6f0;
+  border-color: rgba(255,255,255,0.14);
+}
+
+/* ── Loading skeleton ─────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1e1e26 25%,
+    #26263a 50%,
+    #1e1e26 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 5px;
+  height: 11px;
+  margin-bottom: 8px;
+}
+
+.skeleton.w-full { width: 100%; }
+.skeleton.w-3-4  { width: 75%; }
+.skeleton.w-1-2  { width: 50%; }
+.skeleton.w-1-3  { width: 33%; }
+.skeleton.h-tall { height: 120px; border-radius: 8px; }
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Detail content typography ────────────────────────────────── */
+.detail-heading {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a78bfa;
+  margin: 1.1rem 0 0.4rem;
+}
+
+.detail-heading:first-child { margin-top: 0; }
+
+.detail-prose {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.79rem;
+  line-height: 1.75;
+  color: #9b97ad;
+}
+
+.detail-prose strong { color: #e8e6f0; font-weight: 600; }
+
+.detail-prose code,
+.gotcha-tag code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  background: #1e1e26;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: #34d399;
+}
+
+/* ── Gotcha tags ──────────────────────────────────────────────── */
+.gotcha-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 0.25rem;
+}
+
+.gotcha-tag {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: #9b97ad;
+  background: rgba(251,146,60,0.06);
+  border: 1px solid rgba(251,146,60,0.18);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+/* ── Example code block ───────────────────────────────────────── */
+.detail-code-block {
+  background: #13131a;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 1rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.71rem;
+  line-height: 1.7;
+  color: #e8e6f0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.detail-code-block::-webkit-scrollbar { width: 3px; }
+.detail-code-block::-webkit-scrollbar-track { background: transparent; }
+.detail-code-block::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+/* ── Doc link ─────────────────────────────────────────────────── */
+.doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.71rem;
+  color: #a78bfa;
+  border: 1px solid rgba(124,106,247,0.22);
+  border-radius: 5px;
+  padding: 4px 10px;
+  margin-top: 1.1rem;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: 'Syne', sans-serif;
+  align-self: flex-start;
+}
+
+.doc-link:hover {
+  background: rgba(124,106,247,0.1);
+  border-color: rgba(124,106,247,0.45);
+  color: #c4b5fd;
+  text-decoration: none;
+}
+
+/* ── Hint at bottom of header ─────────────────────────────────── */
+#detail-hint {
+  font-size: 0.62rem;
+  color: #3d3a4e;
+  margin-left: auto;
+  align-self: flex-end;
+  font-family: 'Syne', sans-serif;
+  white-space: nowrap;
+}

@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PySpark & Databricks Cheatsheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/panel.css">
+</head>
+<body>
+
+<!-- ═══ CHROME: header + sidebar (one fixed unit) ═══ -->
+<div id="chrome">
+
+  <header>
+    <div class="header-logo">⚡</div>
+    <div>
+      <div class="header-title">PySpark &amp; Databricks Cheatsheet</div>
+      <div class="header-sub">Imports · DataFrames · Functions · Delta Lake · dbutils · Unity Catalog</div>
+    </div>
+    <div class="header-badges">
+      <span class="header-badge">PySpark 3.x</span>
+      <span class="header-badge">Delta Lake</span>
+      <span class="header-badge">Databricks Runtime</span>
+    </div>
+  </header>
+
+  <nav id="sidebar">
+    <div id="nav-toggle" onclick="toggleNav()">
+      <span id="nav-label">Contents</span>
+      <span id="nav-icon">✕</span>
+    </div>
+    <div id="nav-body">
+      <div class="nav-section">PySpark</div>
+      <a href="#imports"   class="nav-link">Imports</a>
+      <a href="#session"   class="nav-link">SparkSession</a>
+      <a href="#create"    class="nav-link">Creating DataFrames</a>
+      <a href="#inspect"   class="nav-link">Inspection &amp; basic ops</a>
+      <a href="#functions" class="nav-link">Key functions (F.*)</a>
+      <a href="#groupby"   class="nav-link">GroupBy &amp; aggregations</a>
+      <a href="#joins"     class="nav-link">Joins, sort &amp; dedup</a>
+      <a href="#sql"       class="nav-link">SQL interface</a>
+      <a href="#write"     class="nav-link">Writing data</a>
+      <a href="#perf"      class="nav-link">Performance tips</a>
+      <div class="nav-section">Databricks</div>
+      <a href="#magic"     class="nav-link db">Magic commands</a>
+      <a href="#display"   class="nav-link db">Display &amp; output</a>
+      <a href="#dbutils"   class="nav-link db">dbutils</a>
+      <a href="#delta"     class="nav-link db">Delta Lake</a>
+      <a href="#unity"     class="nav-link db">Unity Catalog</a>
+      <a href="#paths"     class="nav-link db">I/O paths &amp; SQL</a>
+    </div>
+  </nav>
+
+</div><!-- end #chrome -->
+
+<!-- ═══ SCROLLABLE CONTENT ═══ -->
+<div id="main-wrapper">
+<main>
+
+  <!-- ─── PART 1: PYSPARK ─── -->
+  <h2 class="part-heading">PySpark <span>Core</span></h2>
+  <p class="part-sub">Standard API — works on any Spark cluster. Click any card for details.</p>
+
+  <!-- IMPORTS -->
+  <div class="section" id="imports">
+    <div class="section-header">
+      <span class="section-title">Imports</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">core</div>
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> SparkSession
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> functions <span class="kw">as</span> F
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.types <span class="kw">import</span> *</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">common types</div>
+        <pre><span class="kw">from</span> pyspark.sql.types <span class="kw">import</span> (
+  StructType, StructField,
+  StringType, IntegerType,
+  FloatType, DoubleType,
+  BooleanType, DateType,
+  TimestampType, ArrayType,
+  MapType, LongType
+)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">ml &amp; streaming</div>
+        <pre><span class="kw">from</span> pyspark.ml <span class="kw">import</span> Pipeline
+<span class="kw">from</span> pyspark.ml.feature <span class="kw">import</span> VectorAssembler
+<span class="kw">from</span> pyspark.ml.classification <span class="kw">import</span> ...
+<span class="kw">from</span> pyspark.streaming <span class="kw">import</span> StreamingContext</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SPARKSESSION -->
+  <div class="section" id="session">
+    <div class="section-header">
+      <span class="section-title">SparkSession</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">create / get</div>
+        <pre>spark = (SparkSession
+  .<span class="fn">builder</span>
+  .<span class="fn">appName</span>(<span class="st">"MyApp"</span>)
+  .<span class="fn">master</span>(<span class="st">"local[*]"</span>)
+  .<span class="fn">config</span>(<span class="st">"spark.sql.shuffle.partitions"</span>, <span class="st">"8"</span>)
+  .<span class="fn">getOrCreate</span>())
+
+sc = spark.sparkContext  <span class="cm"># SparkContext</span></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">useful config</div>
+        <pre>spark.conf.<span class="fn">set</span>(<span class="st">"spark.sql.shuffle.partitions"</span>, 200)
+spark.conf.<span class="fn">get</span>(<span class="st">"spark.sql.shuffle.partitions"</span>)
+
+spark.<span class="fn">stop</span>()           <span class="cm"># stop the session</span>
+spark.version          <span class="cm"># PySpark version</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CREATING DATAFRAMES -->
+  <div class="section" id="create">
+    <div class="section-header">
+      <span class="section-title">Creating DataFrames</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">from data</div>
+        <pre><span class="cm"># from list of tuples</span>
+df = spark.<span class="fn">createDataFrame</span>(
+  [(1, <span class="st">"Alice"</span>), (2, <span class="st">"Bob"</span>)],
+  schema=[<span class="st">"id"</span>, <span class="st">"name"</span>]
+)
+<span class="cm"># from list of dicts</span>
+df = spark.<span class="fn">createDataFrame</span>([
+  {<span class="st">"id"</span>: 1, <span class="st">"name"</span>: <span class="st">"Alice"</span>}
+])
+<span class="cm"># from Pandas</span>
+df = spark.<span class="fn">createDataFrame</span>(pandas_df)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">from files</div>
+        <pre>df = spark.read.<span class="fn">csv</span>(<span class="st">"path.csv"</span>, header=<span class="kw">True</span>,
+                     inferSchema=<span class="kw">True</span>)
+df = spark.read.<span class="fn">json</span>(<span class="st">"path.json"</span>)
+df = spark.read.<span class="fn">parquet</span>(<span class="st">"path.parquet"</span>)
+df = spark.read.<span class="fn">orc</span>(<span class="st">"path.orc"</span>)
+df = spark.read.<span class="fn">text</span>(<span class="st">"path.txt"</span>)
+<span class="cm"># with explicit schema</span>
+df = spark.read.<span class="fn">schema</span>(schema).<span class="fn">csv</span>(...)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">define schema</div>
+        <pre>schema = <span class="fn">StructType</span>([
+  <span class="fn">StructField</span>(<span class="st">"id"</span>,   <span class="fn">IntegerType</span>(), <span class="kw">False</span>),
+  <span class="fn">StructField</span>(<span class="st">"name"</span>, <span class="fn">StringType</span>(),  <span class="kw">True</span>),
+  <span class="fn">StructField</span>(<span class="st">"age"</span>,  <span class="fn">IntegerType</span>(), <span class="kw">True</span>),
+])
+<span class="cm"># nullable = True/False (3rd arg)</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INSPECTION -->
+  <div class="section" id="inspect">
+    <div class="section-header">
+      <span class="section-title">Inspection &amp; basic ops</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">inspect</div>
+        <pre>df.<span class="fn">show</span>(5)             <span class="cm"># print first n rows</span>
+df.<span class="fn">show</span>(truncate=<span class="kw">False</span>)
+df.<span class="fn">printSchema</span>()       <span class="cm"># tree schema</span>
+df.<span class="fn">dtypes</span>              <span class="cm"># list of (col, type)</span>
+df.<span class="fn">columns</span>             <span class="cm"># list of column names</span>
+df.<span class="fn">schema</span>              <span class="cm"># StructType</span>
+df.<span class="fn">count</span>()             <span class="cm"># row count</span>
+df.<span class="fn">describe</span>().<span class="fn">show</span>()   <span class="cm"># summary stats</span>
+df.<span class="fn">summary</span>().<span class="fn">show</span>()   <span class="cm"># extended stats</span></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">select &amp; filter</div>
+        <pre>df.<span class="fn">select</span>(<span class="st">"col1"</span>, <span class="st">"col2"</span>)
+df.<span class="fn">select</span>(df.col1, F.<span class="fn">col</span>(<span class="st">"col2"</span>))
+
+df.<span class="fn">filter</span>(F.<span class="fn">col</span>(<span class="st">"age"</span>) &gt; 30)
+df.<span class="fn">where</span>(<span class="st">"age &gt; 30"</span>)      <span class="cm"># SQL string</span>
+df.<span class="fn">filter</span>(
+  (F.<span class="fn">col</span>(<span class="st">"age"</span>) &gt; 18) &amp;
+  (F.<span class="fn">col</span>(<span class="st">"city"</span>) == <span class="st">"NYC"</span>)
+)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">add / rename / drop cols</div>
+        <pre>df.<span class="fn">withColumn</span>(<span class="st">"new"</span>, F.<span class="fn">col</span>(<span class="st">"a"</span>) * 2)
+df.<span class="fn">withColumnRenamed</span>(<span class="st">"old"</span>, <span class="st">"new"</span>)
+df.<span class="fn">drop</span>(<span class="st">"col1"</span>, <span class="st">"col2"</span>)
+df.<span class="fn">toDF</span>(*[<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>])   <span class="cm"># rename all</span>
+<span class="cm"># cast type</span>
+df.<span class="fn">withColumn</span>(<span class="st">"age"</span>,
+  F.<span class="fn">col</span>(<span class="st">"age"</span>).<span class="fn">cast</span>(<span class="fn">IntegerType</span>()))</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- KEY FUNCTIONS -->
+  <div class="section" id="functions">
+    <div class="section-header">
+      <span class="section-title">Key functions (F.*)</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">string</div>
+        <pre>F.<span class="fn">upper</span>(<span class="st">"col"</span>)   F.<span class="fn">lower</span>(<span class="st">"col"</span>)
+F.<span class="fn">trim</span>(<span class="st">"col"</span>)    F.<span class="fn">ltrim</span>()  F.<span class="fn">rtrim</span>()
+F.<span class="fn">length</span>(<span class="st">"col"</span>)  F.<span class="fn">substr</span>(<span class="st">"col"</span>, 1, 3)
+F.<span class="fn">concat</span>(c1, c2) F.<span class="fn">concat_ws</span>(<span class="st">"-"</span>, c1, c2)
+F.<span class="fn">split</span>(<span class="st">"col"</span>, <span class="st">","</span>)
+F.<span class="fn">regexp_replace</span>(<span class="st">"col"</span>, <span class="st">"pat"</span>, <span class="st">"rep"</span>)
+F.<span class="fn">regexp_extract</span>(<span class="st">"col"</span>, <span class="st">"pat"</span>, 0)
+F.<span class="fn">like</span>() / F.<span class="fn">rlike</span>()</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">date &amp; time</div>
+        <pre>F.<span class="fn">current_date</span>()
+F.<span class="fn">current_timestamp</span>()
+F.<span class="fn">to_date</span>(<span class="st">"col"</span>, <span class="st">"yyyy-MM-dd"</span>)
+F.<span class="fn">to_timestamp</span>(<span class="st">"col"</span>, <span class="st">"fmt"</span>)
+F.<span class="fn">date_format</span>(<span class="st">"col"</span>, <span class="st">"yyyy-MM"</span>)
+F.<span class="fn">datediff</span>(end, start)
+F.<span class="fn">date_add</span>(<span class="st">"col"</span>, 7)
+F.<span class="fn">year</span>() F.<span class="fn">month</span>() F.<span class="fn">dayofmonth</span>()
+F.<span class="fn">hour</span>() F.<span class="fn">minute</span>() F.<span class="fn">second</span>()</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">math &amp; logic</div>
+        <pre>F.<span class="fn">abs</span>()  F.<span class="fn">round</span>()  F.<span class="fn">ceil</span>()  F.<span class="fn">floor</span>()
+F.<span class="fn">sqrt</span>()  F.<span class="fn">pow</span>(col, 2)  F.<span class="fn">log</span>()
+F.<span class="fn">greatest</span>(c1, c2)  F.<span class="fn">least</span>(c1, c2)
+F.<span class="fn">when</span>(cond, val).<span class="fn">otherwise</span>(val2)
+F.<span class="fn">isnull</span>(<span class="st">"col"</span>)  F.<span class="fn">isnotnull</span>(<span class="st">"col"</span>)
+F.<span class="fn">coalesce</span>(c1, c2, ...)  <span class="cm"># first non-null</span>
+F.<span class="fn">lit</span>(42)                 <span class="cm"># literal value</span>
+F.<span class="fn">col</span>(<span class="st">"name"</span>)             <span class="cm"># column ref</span></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">aggregate</div>
+        <pre>F.<span class="fn">count</span>()  F.<span class="fn">countDistinct</span>()
+F.<span class="fn">sum</span>()    F.<span class="fn">avg</span>()    F.<span class="fn">mean</span>()
+F.<span class="fn">min</span>()    F.<span class="fn">max</span>()
+F.<span class="fn">stddev</span>()   F.<span class="fn">variance</span>()
+F.<span class="fn">collect_list</span>()  F.<span class="fn">collect_set</span>()
+F.<span class="fn">first</span>()  F.<span class="fn">last</span>()
+F.<span class="fn">approx_count_distinct</span>()</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">array &amp; map</div>
+        <pre>F.<span class="fn">array</span>(c1, c2)    F.<span class="fn">array_contains</span>()
+F.<span class="fn">explode</span>(<span class="st">"arr_col"</span>)   <span class="cm"># row per element</span>
+F.<span class="fn">explode_outer</span>()       <span class="cm"># keeps nulls</span>
+F.<span class="fn">posexplode</span>()          <span class="cm"># with index</span>
+F.<span class="fn">size</span>(<span class="st">"arr_col"</span>)
+F.<span class="fn">map_keys</span>()  F.<span class="fn">map_values</span>()
+F.<span class="fn">create_map</span>(k1, v1, k2, v2)
+F.<span class="fn">flatten</span>(<span class="st">"nested_arr"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">udf</div>
+        <pre><span class="cm"># define a UDF</span>
+@F.<span class="fn">udf</span>(<span class="fn">StringType</span>())
+<span class="kw">def</span> <span class="fn">my_udf</span>(val):
+    <span class="kw">return</span> val.<span class="fn">upper</span>()
+
+df.<span class="fn">withColumn</span>(<span class="st">"out"</span>, <span class="fn">my_udf</span>(F.<span class="fn">col</span>(<span class="st">"name"</span>)))
+
+<span class="cm"># pandas UDF (vectorized, faster)</span>
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> pandas_udf
+@<span class="fn">pandas_udf</span>(<span class="st">"double"</span>)
+<span class="kw">def</span> <span class="fn">fast_udf</span>(s: pd.Series) -&gt; pd.Series:
+    <span class="kw">return</span> s * 2</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GROUPBY -->
+  <div class="section" id="groupby">
+    <div class="section-header">
+      <span class="section-title">GroupBy &amp; aggregations</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">groupby</div>
+        <pre>df.<span class="fn">groupBy</span>(<span class="st">"dept"</span>).<span class="fn">agg</span>(
+  F.<span class="fn">count</span>(<span class="st">"*"</span>).<span class="fn">alias</span>(<span class="st">"cnt"</span>),
+  F.<span class="fn">avg</span>(<span class="st">"salary"</span>).<span class="fn">alias</span>(<span class="st">"avg_sal"</span>),
+  F.<span class="fn">max</span>(<span class="st">"age"</span>).<span class="fn">alias</span>(<span class="st">"max_age"</span>)
+)
+df.<span class="fn">groupBy</span>(<span class="st">"a"</span>, <span class="st">"b"</span>).<span class="fn">count</span>()
+df.<span class="fn">groupBy</span>(<span class="st">"a"</span>).<span class="fn">pivot</span>(<span class="st">"b"</span>).<span class="fn">sum</span>(<span class="st">"val"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">window functions</div>
+        <pre>w = (Window
+  .<span class="fn">partitionBy</span>(<span class="st">"dept"</span>)
+  .<span class="fn">orderBy</span>(F.<span class="fn">desc</span>(<span class="st">"salary"</span>)))
+
+df.<span class="fn">withColumn</span>(<span class="st">"rank"</span>,  F.<span class="fn">rank</span>().<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"dense"</span>, F.<span class="fn">dense_rank</span>().<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"rn"</span>,    F.<span class="fn">row_number</span>().<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"lag1"</span>,  F.<span class="fn">lag</span>(<span class="st">"col"</span>,1).<span class="fn">over</span>(w))
+df.<span class="fn">withColumn</span>(<span class="st">"lead1"</span>,F.<span class="fn">lead</span>(<span class="st">"col"</span>,1).<span class="fn">over</span>(w))
+<span class="cm"># rolling sum over last 3 rows</span>
+w2 = w.<span class="fn">rowsBetween</span>(-2, 0)
+df.<span class="fn">withColumn</span>(<span class="st">"roll"</span>, F.<span class="fn">sum</span>(<span class="st">"val"</span>).<span class="fn">over</span>(w2))</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JOINS -->
+  <div class="section" id="joins">
+    <div class="section-header">
+      <span class="section-title">Joins, sort &amp; dedup</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">joins</div>
+        <pre><span class="cm"># types: inner,left,right,full,</span>
+<span class="cm">#        left_semi,left_anti,cross</span>
+df1.<span class="fn">join</span>(df2, on=<span class="st">"id"</span>, how=<span class="st">"inner"</span>)
+df1.<span class="fn">join</span>(df2, on=[<span class="st">"a"</span>, <span class="st">"b"</span>], how=<span class="st">"left"</span>)
+df1.<span class="fn">join</span>(df2,
+  df1.id == df2.user_id, how=<span class="st">"left"</span>)
+<span class="cm"># broadcast join (small table)</span>
+df1.<span class="fn">join</span>(F.<span class="fn">broadcast</span>(small_df), <span class="st">"id"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">sort, dedup &amp; null</div>
+        <pre>df.<span class="fn">sort</span>(<span class="st">"age"</span>)
+df.<span class="fn">orderBy</span>(F.<span class="fn">desc</span>(<span class="st">"salary"</span>), F.<span class="fn">asc</span>(<span class="st">"name"</span>))
+df.<span class="fn">distinct</span>()
+df.<span class="fn">dropDuplicates</span>([<span class="st">"col1"</span>, <span class="st">"col2"</span>])
+df.<span class="fn">dropna</span>()
+df.<span class="fn">dropna</span>(subset=[<span class="st">"a"</span>, <span class="st">"b"</span>])
+df.<span class="fn">fillna</span>(0)
+df.<span class="fn">fillna</span>({<span class="st">"a"</span>: 0, <span class="st">"b"</span>: <span class="st">"NA"</span>})</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">set ops &amp; union</div>
+        <pre>df1.<span class="fn">union</span>(df2)           <span class="cm"># by position</span>
+df1.<span class="fn">unionByName</span>(df2)     <span class="cm"># by col name</span>
+df1.<span class="fn">intersect</span>(df2)
+df1.<span class="fn">subtract</span>(df2)
+df.<span class="fn">limit</span>(100)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SQL -->
+  <div class="section" id="sql">
+    <div class="section-header">
+      <span class="section-title">SQL interface</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">register &amp; query</div>
+        <pre>df.<span class="fn">createOrReplaceTempView</span>(<span class="st">"users"</span>)
+df.<span class="fn">createOrReplaceGlobalTempView</span>(<span class="st">"users"</span>)
+
+result = spark.<span class="fn">sql</span>(<span class="st">"""
+  SELECT dept, AVG(salary) AS avg_sal
+  FROM users
+  WHERE age &gt; 25
+  GROUP BY dept
+  ORDER BY avg_sal DESC
+"""</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">catalog</div>
+        <pre>spark.catalog.<span class="fn">listTables</span>()
+spark.catalog.<span class="fn">listDatabases</span>()
+spark.catalog.<span class="fn">listColumns</span>(<span class="st">"table"</span>)
+spark.catalog.<span class="fn">tableExists</span>(<span class="st">"db.tbl"</span>)
+spark.catalog.<span class="fn">dropTempView</span>(<span class="st">"users"</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WRITE -->
+  <div class="section" id="write">
+    <div class="section-header">
+      <span class="section-title">Writing data</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">save modes &amp; formats</div>
+        <pre><span class="cm"># modes: overwrite,append,ignore,error</span>
+df.write.<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">parquet</span>(<span class="st">"out/"</span>)
+df.write.<span class="fn">mode</span>(<span class="st">"append"</span>).<span class="fn">csv</span>(<span class="st">"out/"</span>)
+df.write.<span class="fn">json</span>(<span class="st">"out/data.json"</span>)
+df.write.<span class="fn">orc</span>(<span class="st">"out/"</span>)
+df.write.<span class="fn">partitionBy</span>(<span class="st">"year"</span>, <span class="st">"month"</span>)
+   .<span class="fn">parquet</span>(<span class="st">"out/"</span>)
+df.<span class="fn">toPandas</span>()   <span class="cm"># collect to Pandas df</span></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">save as table / jdbc</div>
+        <pre>df.write.<span class="fn">saveAsTable</span>(<span class="st">"db.my_table"</span>)
+df.write.<span class="fn">insertInto</span>(<span class="st">"my_table"</span>)
+
+df.write.<span class="fn">format</span>(<span class="st">"jdbc"</span>).<span class="fn">options</span>(
+  url=<span class="st">"jdbc:postgresql://host/db"</span>,
+  dbtable=<span class="st">"schema.table"</span>,
+  user=<span class="st">"user"</span>, password=<span class="st">"pass"</span>
+).<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">save</span>()</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PERFORMANCE -->
+  <div class="section" id="perf">
+    <div class="section-header">
+      <span class="section-title">Performance tips</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">caching &amp; partitions</div>
+        <pre>df.<span class="fn">cache</span>()              <span class="cm"># memory cache</span>
+df.<span class="fn">persist</span>()            <span class="cm"># MEMORY_AND_DISK</span>
+df.<span class="fn">unpersist</span>()
+df.<span class="fn">repartition</span>(8)       <span class="cm"># shuffle repartition</span>
+df.<span class="fn">repartition</span>(8, <span class="st">"key"</span>)<span class="cm"># by column</span>
+df.<span class="fn">coalesce</span>(4)           <span class="cm"># reduce (no shuffle)</span></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">explain &amp; debug</div>
+        <pre>df.<span class="fn">explain</span>()            <span class="cm"># physical plan</span>
+df.<span class="fn">explain</span>(<span class="kw">True</span>)        <span class="cm"># all plans</span>
+df.<span class="fn">explain</span>(<span class="st">"formatted"</span>) <span class="cm"># readable plan</span>
+
+spark.sparkContext.<span class="fn">setLogLevel</span>(<span class="st">"WARN"</span>)
+<span class="cm"># Spark UI → http://localhost:4040</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── DIVIDER ─── -->
+  <div class="part-divider">
+    <div class="part-divider-line"></div>
+    <span class="part-divider-label">Databricks additions</span>
+    <div class="part-divider-line"></div>
+  </div>
+
+  <!-- ─── PART 2: DATABRICKS ─── -->
+  <h2 class="part-heading"><span>Databricks</span> Specifics</h2>
+  <p class="part-sub">Delta Lake · dbutils · Unity Catalog · Notebook magic</p>
+
+  <div class="tip-box">
+    <strong>Tip:</strong> In Databricks, <code>spark</code> and <code>dbutils</code> are pre-initialised — no imports or SparkSession setup needed. Delta Lake is the default table format.
+  </div>
+
+  <!-- MAGIC COMMANDS -->
+  <div class="section" id="magic">
+    <div class="section-header">
+      <span class="section-title">Notebook magic commands</span>
+      <span class="db-badge">Databricks only</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">cell-level language switching</div>
+        <pre><span class="cm"># switch language for a single cell</span>
+%python   <span class="cm"># Python (default)</span>
+%sql      <span class="cm"># run SQL directly</span>
+%scala    <span class="cm"># Scala</span>
+%r        <span class="cm"># R</span>
+%sh       <span class="cm"># shell commands on driver</span>
+%md       <span class="cm"># Markdown (docs/headings)</span>
+%fs       <span class="cm"># shorthand for dbutils.fs</span>
+%run ./other_notebook  <span class="cm"># run another nb</span></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">install &amp; config</div>
+        <pre>%pip install pandas==2.0.3
+%pip install -r requirements.txt
+<span class="cm"># restart Python after pip installs</span>
+dbutils.library.<span class="fn">restartPython</span>()
+
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DISPLAY -->
+  <div class="section" id="display">
+    <div class="section-header">
+      <span class="section-title">Display &amp; output</span>
+      <span class="db-badge">Databricks only</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">display functions</div>
+        <pre><span class="cm"># rich interactive table — use over .show()</span>
+<span class="fn">display</span>(df)
+<span class="fn">display</span>(df.<span class="fn">limit</span>(100))
+<span class="cm"># render a chart directly</span>
+<span class="fn">display</span>(df.<span class="fn">groupBy</span>(<span class="st">"dept"</span>).<span class="fn">count</span>())
+<span class="cm"># display HTML, matplotlib, plotly</span>
+<span class="fn">displayHTML</span>(<span class="st">"&lt;h1&gt;Hello&lt;/h1&gt;"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">widgets (notebook params)</div>
+        <pre>dbutils.widgets.<span class="fn">text</span>(<span class="st">"env"</span>, <span class="st">"dev"</span>, <span class="st">"Env"</span>)
+dbutils.widgets.<span class="fn">dropdown</span>(<span class="st">"mode"</span>, <span class="st">"full"</span>,
+  [<span class="st">"full"</span>, <span class="st">"incremental"</span>])
+dbutils.widgets.<span class="fn">multiselect</span>(<span class="st">"cols"</span>,
+  <span class="st">"a"</span>, [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>])
+env = dbutils.widgets.<span class="fn">get</span>(<span class="st">"env"</span>)
+dbutils.widgets.<span class="fn">removeAll</span>()</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DBUTILS -->
+  <div class="section" id="dbutils">
+    <div class="section-header">
+      <span class="section-title">dbutils</span>
+      <span class="db-badge">Databricks only</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">file system (dbutils.fs)</div>
+        <pre>dbutils.fs.<span class="fn">ls</span>(<span class="st">"dbfs:/path"</span>)
+dbutils.fs.<span class="fn">ls</span>(<span class="st">"/Volumes/catalog/schema/vol"</span>)
+dbutils.fs.<span class="fn">mkdirs</span>(<span class="st">"dbfs:/path/newdir"</span>)
+dbutils.fs.<span class="fn">cp</span>(<span class="st">"dbfs:/src"</span>, <span class="st">"dbfs:/dst"</span>,
+              recurse=<span class="kw">True</span>)
+dbutils.fs.<span class="fn">mv</span>(<span class="st">"dbfs:/old"</span>, <span class="st">"dbfs:/new"</span>)
+dbutils.fs.<span class="fn">rm</span>(<span class="st">"dbfs:/path"</span>, recurse=<span class="kw">True</span>)
+dbutils.fs.<span class="fn">head</span>(<span class="st">"dbfs:/file.txt"</span>, 1024)
+dbutils.fs.<span class="fn">put</span>(<span class="st">"dbfs:/file.txt"</span>, <span class="st">"content"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">secrets</div>
+        <pre><span class="cm"># retrieve a secret (never printed)</span>
+pw = dbutils.secrets.<span class="fn">get</span>(
+  scope=<span class="st">"my-scope"</span>, key=<span class="st">"db-password"</span>)
+dbutils.secrets.<span class="fn">list</span>(<span class="st">"my-scope"</span>)
+dbutils.secrets.<span class="fn">listScopes</span>()
+<span class="cm"># use in spark config</span>
+spark.conf.<span class="fn">set</span>(<span class="st">"fs.azure.account.key...."</span>,
+  dbutils.secrets.<span class="fn">get</span>(<span class="st">"scope"</span>, <span class="st">"key"</span>))</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">notebook control</div>
+        <pre><span class="cm"># run another notebook, pass args</span>
+result = dbutils.notebook.<span class="fn">run</span>(
+  <span class="st">"./child_notebook"</span>,
+  timeout_seconds=3600,
+  arguments={<span class="st">"env"</span>: <span class="st">"prod"</span>})
+<span class="cm"># exit current notebook with a value</span>
+dbutils.notebook.<span class="fn">exit</span>(<span class="st">"done"</span>)
+ctx = dbutils.notebook.entry_point\
+  .<span class="fn">getDbutils</span>().<span class="fn">notebook</span>().<span class="fn">getContext</span>()
+path = ctx.<span class="fn">notebookPath</span>().<span class="fn">get</span>()</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">help &amp; discovery</div>
+        <pre>dbutils.<span class="fn">help</span>()           <span class="cm"># list all modules</span>
+dbutils.fs.<span class="fn">help</span>()        <span class="cm"># fs commands</span>
+dbutils.secrets.<span class="fn">help</span>()  <span class="cm"># secrets commands</span>
+dbutils.widgets.<span class="fn">help</span>()  <span class="cm"># widget commands</span>
+<span class="cm"># restart Python kernel</span>
+dbutils.library.<span class="fn">restartPython</span>()</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DELTA LAKE -->
+  <div class="section" id="delta">
+    <div class="section-header">
+      <span class="section-title">Delta Lake</span>
+      <span class="db-badge">Databricks native</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">read &amp; write delta</div>
+        <pre><span class="kw">from</span> delta.tables <span class="kw">import</span> DeltaTable
+<span class="cm"># read</span>
+df = spark.read.<span class="fn">table</span>(<span class="st">"catalog.schema.table"</span>)
+df = spark.read.<span class="fn">format</span>(<span class="st">"delta"</span>).<span class="fn">load</span>(<span class="st">"/path"</span>)
+<span class="cm"># write</span>
+df.write.<span class="fn">format</span>(<span class="st">"delta"</span>).<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">save</span>(<span class="st">"/path"</span>)
+df.<span class="fn">writeTo</span>(<span class="st">"catalog.schema.table"</span>).<span class="fn">createOrReplace</span>()
+df.write.<span class="fn">format</span>(<span class="st">"delta"</span>)\
+  .<span class="fn">partitionBy</span>(<span class="st">"year"</span>, <span class="st">"month"</span>)\
+  .<span class="fn">mode</span>(<span class="st">"overwrite"</span>).<span class="fn">save</span>(<span class="st">"/path"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">update, delete, upsert (merge)</div>
+        <pre>dt = DeltaTable.<span class="fn">forName</span>(spark, <span class="st">"db.my_table"</span>)
+dt = DeltaTable.<span class="fn">forPath</span>(spark, <span class="st">"/path/delta"</span>)
+<span class="cm"># update rows</span>
+dt.<span class="fn">update</span>(condition=<span class="st">"id = 1"</span>,
+          set={<span class="st">"status"</span>: <span class="st">"'active'"</span>})
+<span class="cm"># delete rows</span>
+dt.<span class="fn">delete</span>(<span class="st">"status = 'inactive'"</span>)
+<span class="cm"># merge / upsert</span>
+dt.<span class="fn">alias</span>(<span class="st">"t"</span>).<span class="fn">merge</span>(
+  source_df.<span class="fn">alias</span>(<span class="st">"s"</span>), <span class="st">"t.id = s.id"</span>)\
+  .<span class="fn">whenMatchedUpdateAll</span>()\
+  .<span class="fn">whenNotMatchedInsertAll</span>()\
+  .<span class="fn">execute</span>()</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">time travel</div>
+        <pre><span class="cm"># read a previous version</span>
+df = spark.read.<span class="fn">format</span>(<span class="st">"delta"</span>)\
+  .<span class="fn">option</span>(<span class="st">"versionAsOf"</span>, 3)\
+  .<span class="fn">load</span>(<span class="st">"/path/delta"</span>)
+df = spark.read.<span class="fn">format</span>(<span class="st">"delta"</span>)\
+  .<span class="fn">option</span>(<span class="st">"timestampAsOf"</span>, <span class="st">"2024-01-01"</span>)\
+  .<span class="fn">load</span>(<span class="st">"/path/delta"</span>)
+<span class="cm"># view history</span>
+dt.<span class="fn">history</span>().<span class="fn">show</span>()
+spark.<span class="fn">sql</span>(<span class="st">"RESTORE TABLE t VERSION AS OF 5"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">maintenance &amp; optimization</div>
+        <pre><span class="cm"># compact small files</span>
+spark.<span class="fn">sql</span>(<span class="st">"OPTIMIZE catalog.schema.table"</span>)
+<span class="cm"># Z-order (co-locate similar data)</span>
+spark.<span class="fn">sql</span>(<span class="st">"""OPTIMIZE my_table
+  ZORDER BY (customer_id, date)"""</span>)
+<span class="cm"># remove old file versions</span>
+spark.<span class="fn">sql</span>(<span class="st">"VACUUM my_table RETAIN 168 HOURS"</span>)
+dt.<span class="fn">vacuum</span>(168)
+spark.<span class="fn">sql</span>(<span class="st">"DESCRIBE DETAIL my_table"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"DESCRIBE HISTORY my_table"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">create delta table (ddl)</div>
+        <pre>spark.<span class="fn">sql</span>(<span class="st">"""
+  CREATE TABLE IF NOT EXISTS db.sales (
+    id      INT,
+    amount  DOUBLE,
+    dt      DATE
+  ) USING DELTA
+  PARTITIONED BY (dt)
+  LOCATION 's3://bucket/path/'
+"""</span>)
+<span class="cm"># clone a table (cheap snapshot)</span>
+spark.<span class="fn">sql</span>(<span class="st">"""
+  CREATE TABLE db.sales_clone
+  SHALLOW CLONE db.sales
+"""</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">auto-optimize (table properties)</div>
+        <pre>spark.<span class="fn">sql</span>(<span class="st">"""
+  ALTER TABLE my_table SET TBLPROPERTIES (
+    'delta.autoOptimize.optimizeWrite' = 'true',
+    'delta.autoOptimize.autoCompact'   = 'true'
+  )
+"""</span>)
+spark.conf.<span class="fn">set</span>(
+  <span class="st">"spark.databricks.delta.properties"</span>
+  <span class="st">".defaults.autoOptimize.optimizeWrite"</span>,
+  <span class="st">"true"</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- UNITY CATALOG -->
+  <div class="section" id="unity">
+    <div class="section-header">
+      <span class="section-title">Unity Catalog</span>
+      <span class="db-badge">Databricks only</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">three-level namespace</div>
+        <pre><span class="cm"># catalog.schema.table</span>
+df = spark.read.<span class="fn">table</span>(
+  <span class="st">"my_catalog.my_schema.my_table"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"USE CATALOG my_catalog"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"USE SCHEMA my_schema"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"SHOW CATALOGS"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"SHOW SCHEMAS IN my_catalog"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"SHOW TABLES IN my_catalog.my_schema"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">volumes (non-tabular files)</div>
+        <pre><span class="cm"># path: /Volumes/catalog/schema/volume/</span>
+df = spark.read.<span class="fn">csv</span>(
+  <span class="st">"/Volumes/prod/raw/uploads/data.csv"</span>,
+  header=<span class="kw">True</span>)
+dbutils.fs.<span class="fn">ls</span>(<span class="st">"/Volumes/prod/raw/uploads/"</span>)
+dbutils.fs.<span class="fn">cp</span>(<span class="st">"file:/local"</span>,
+  <span class="st">"/Volumes/prod/raw/uploads/"</span>)</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">grants &amp; access control</div>
+        <pre>spark.<span class="fn">sql</span>(<span class="st">"""
+  GRANT SELECT ON TABLE
+    my_catalog.my_schema.sales
+  TO `analysts@company.com`
+"""</span>)
+spark.<span class="fn">sql</span>(<span class="st">"""
+  GRANT ALL PRIVILEGES ON SCHEMA
+    my_catalog.my_schema
+  TO `data_engineers`
+"""</span>)
+spark.<span class="fn">sql</span>(<span class="st">"SHOW GRANTS ON TABLE my_table"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"REVOKE SELECT ON TABLE ..."</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PATHS -->
+  <div class="section" id="paths">
+    <div class="section-header">
+      <span class="section-title">Databricks-specific I/O paths</span>
+    </div>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-label">path prefixes</div>
+        <pre><span class="cm"># DBFS (Databricks File System)</span>
+<span class="st">"dbfs:/FileStore/tables/data.csv"</span>
+<span class="cm"># Unity Catalog Volumes</span>
+<span class="st">"/Volumes/catalog/schema/volume/file"</span>
+<span class="cm"># Cloud storage</span>
+<span class="st">"s3://bucket/path/"</span>         <span class="cm"># AWS</span>
+<span class="st">"abfss://container@acct..."</span> <span class="cm"># Azure ADLS</span>
+<span class="st">"gs://bucket/path/"</span>         <span class="cm"># GCP</span>
+<span class="cm"># local driver node</span>
+<span class="st">"file:/tmp/localfile.csv"</span></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-label">spark.sql passthrough patterns</div>
+        <pre><span class="cm"># read SQL result into a df</span>
+df = spark.<span class="fn">sql</span>(<span class="st">"SELECT * FROM my_table"</span>)
+<span class="cm"># inject Python variable into SQL</span>
+date_str = <span class="st">"2024-01-01"</span>
+df = spark.<span class="fn">sql</span>(f<span class="st">"""
+  SELECT * FROM sales
+  WHERE dt &gt;= '{date_str}'
+"""</span>)
+spark.<span class="fn">sql</span>(<span class="st">"DROP TABLE IF EXISTS db.tbl"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"TRUNCATE TABLE db.tbl"</span>)
+spark.<span class="fn">sql</span>(<span class="st">"MSCK REPAIR TABLE db.tbl"</span>)</pre>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer id="page-footer">
+  PySpark &amp; Databricks Cheatsheet &nbsp;·&nbsp; Click any card to explore details &nbsp;·&nbsp; Press <kbd style="font-family:monospace;background:#1e1e26;border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:1px 5px;font-size:0.7rem">[</kbd> to toggle sidebar
+</footer>
+</div><!-- end #main-wrapper -->
+
+<!-- ═══ DETAIL MODAL ═══ -->
+<div id="detail-overlay"></div>
+
+<div id="detail-panel" role="dialog" aria-modal="true">
+  <div id="detail-header">
+    <div>
+      <div id="detail-section-label"></div>
+      <div id="detail-card-title"></div>
+    </div>
+    <span id="detail-hint">esc to close</span>
+    <button id="detail-close" onclick="closePanel()" aria-label="Close">✕</button>
+  </div>
+  <div id="detail-inner">
+    <div id="detail-left"></div>
+    <div id="detail-right"></div>
+  </div>
+</div>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script src="data/cards.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/panel.js"></script>
+
+</body>
+</html>
