@@ -1,0 +1,60 @@
+/* Python Cheatsheet — panel.css (amber theme) */
+#detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+  z-index:199;backdrop-filter:blur(3px);opacity:0;transition:opacity .2s ease}
+#detail-overlay.open{display:block;opacity:1}
+#detail-panel{position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-46%) scale(.97);opacity:0;
+  width:min(800px,93vw);max-height:min(84vh,760px);
+  background:#1a1812;border:1px solid rgba(255,255,255,.1);border-radius:14px;
+  z-index:200;display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px rgba(245,158,11,.07),0 24px 80px rgba(0,0,0,.75);
+  transition:transform .25s cubic-bezier(.34,1.4,.64,1),opacity .2s ease;pointer-events:none}
+#detail-panel.open{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:all}
+#detail-inner{display:flex;flex:1;min-height:0}
+#detail-left{flex:1;min-width:0;display:flex;flex-direction:column;
+  border-right:1px solid rgba(255,255,255,.06);overflow-y:auto;padding:1.1rem 1.1rem 1.1rem 1.3rem}
+#detail-right{width:345px;flex-shrink:0;display:flex;flex-direction:column;
+  overflow-y:auto;padding:1.1rem 1.3rem 1.1rem 1.1rem}
+#detail-left::-webkit-scrollbar,#detail-right::-webkit-scrollbar{width:3px}
+#detail-left::-webkit-scrollbar-thumb,#detail-right::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.1);border-radius:2px}
+#detail-header{display:flex;align-items:flex-start;justify-content:space-between;
+  padding:.9rem 1.3rem;border-bottom:1px solid rgba(255,255,255,.07);
+  flex-shrink:0;gap:1rem}
+#detail-section-label{font-family:'Syne',sans-serif;font-size:.56rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:#6b6455;margin-bottom:3px}
+#detail-card-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;
+  color:#f0ede4;line-height:1.3;letter-spacing:-.2px}
+#detail-close{background:none;border:1px solid rgba(255,255,255,.08);color:#6b6455;
+  font-size:.82rem;cursor:pointer;padding:5px 9px;border-radius:6px;
+  transition:background .15s,color .15s;line-height:1;flex-shrink:0;margin-top:2px}
+#detail-close:hover{background:#242018;color:#f0ede4}
+.skeleton{background:linear-gradient(90deg,#242018 25%,#2e2a1e 50%,#242018 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:5px;
+  height:11px;margin-bottom:8px}
+.skeleton.w-full{width:100%}.skeleton.w-3-4{width:75%}.skeleton.w-1-2{width:50%}
+.skeleton.h-tall{height:130px;border-radius:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.detail-heading{font-family:'Syne',sans-serif;font-size:.58rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:#fbbf24;margin:1rem 0 .35rem}
+.detail-heading:first-child{margin-top:0}
+.detail-prose{font-family:'Syne',sans-serif;font-size:.77rem;line-height:1.75;color:#b0aa96}
+.detail-prose strong{color:#f0ede4;font-weight:600}
+.detail-prose code,.gotcha-tag code{font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  background:#242018;border:1px solid rgba(255,255,255,.07);border-radius:4px;
+  padding:1px 5px;color:#34d399}
+.gotcha-list{display:flex;flex-direction:column;gap:5px;margin-top:.2rem}
+.gotcha-tag{font-family:'Syne',sans-serif;font-size:.72rem;line-height:1.55;color:#b0aa96;
+  background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.18);
+  border-radius:6px;padding:5px 9px}
+.detail-code-block{background:#0f0e0b;border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;padding:.9rem;font-family:'JetBrains Mono',monospace;
+  font-size:.69rem;line-height:1.7;color:#f0ede4;white-space:pre-wrap;
+  word-break:break-all;flex:1;overflow-y:auto}
+.detail-code-block::-webkit-scrollbar{width:3px}
+.detail-code-block::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.doc-link{display:inline-flex;align-items:center;gap:5px;font-size:.69rem;
+  color:#fbbf24;border:1px solid rgba(245,158,11,.22);border-radius:5px;
+  padding:4px 10px;margin-top:1rem;transition:background .15s,border-color .15s;
+  font-family:'Syne',sans-serif;align-self:flex-start}
+.doc-link:hover{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.45);color:#fde68a}

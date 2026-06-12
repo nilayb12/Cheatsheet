@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Cheatsheet — Core · Advanced · Stdlib · Data Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/panel.css">
+</head>
+<body>
+
+<!-- ── Fixed chrome (header + sidebar) ── -->
+<div id="chrome">
+  <header>
+    <div class="hdr-logo">🐍</div>
+    <div>
+      <div class="hdr-title">Python Cheatsheet</div>
+      <div class="hdr-sub">Core · Advanced · Stdlib · Data Science</div>
+    </div>
+    <div class="hdr-right">
+      <nav class="page-tabs" role="tablist">
+        <button class="page-tab active" data-page="core"        onclick="switchPage('core')"        role="tab">Core Language</button>
+        <button class="page-tab"        data-page="advanced"    onclick="switchPage('advanced')"    role="tab">Advanced</button>
+        <button class="page-tab"        data-page="stdlib"      onclick="switchPage('stdlib')"      role="tab">Stdlib</button>
+        <button class="page-tab"        data-page="datascience" onclick="switchPage('datascience')" role="tab">Data Science</button>
+      </nav>
+      <span class="hdr-badge">Python 3.12+</span>
+      <span class="hdr-badge"><kbd>[</kbd> sidebar</span>
+      <span class="hdr-badge"><kbd>1–4</kbd> pages</span>
+    </div>
+  </header>
+
+  <div style="display:flex;flex:1;min-height:0;overflow:hidden">
+    <!-- ── Sidebar ── -->
+    <nav id="sidebar">
+      <div id="nav-toggle" onclick="toggleNav()" role="button" aria-label="Toggle sidebar">
+        <span id="nav-label">Navigation</span>
+        <span id="nav-icon">✕</span>
+      </div>
+      <div id="nav-body">
+
+        <!-- Page 1: Core -->
+        <div class="nav-page-group">
+          <button class="nav-page-btn active" data-page="core" onclick="switchPage('core')">
+            <span class="pg-arrow">▾</span> Core Language
+          </button>
+          <div class="nav-page-links" id="nav-links-core">
+            <div class="nav-section">Primitives</div>
+            <a class="nav-link" href="#s-types"         onclick="switchPage('core')">Types &amp; Literals</a>
+            <a class="nav-link" href="#s-strings"       onclick="switchPage('core')">Strings</a>
+            <a class="nav-link" href="#s-str-validation" onclick="switchPage('core')">&#x2192; Validation methods</a>
+            <a class="nav-link" href="#s-tstrings"       onclick="switchPage('core')">&#x2192; t-strings (3.14+)</a>
+            <a class="nav-link" href="#s-lists"         onclick="switchPage('core')">Lists</a>
+            <a class="nav-link" href="#s-tuples"        onclick="switchPage('core')">Tuples</a>
+            <a class="nav-link" href="#s-sets"          onclick="switchPage('core')">Sets &amp; Frozensets</a>
+            <a class="nav-link" href="#s-dicts"         onclick="switchPage('core')">Dictionaries</a>
+            <div class="nav-section">Control & Functions</div>
+            <a class="nav-link" href="#s-flow"          onclick="switchPage('core')">Control Flow</a>
+            <a class="nav-link" href="#s-functions"     onclick="switchPage('core')">Functions</a>
+            <a class="nav-link" href="#s-comprehensions" onclick="switchPage('core')">Comprehensions</a>
+            <div class="nav-section">I/O & Builtins</div>
+            <a class="nav-link" href="#s-errors"        onclick="switchPage('core')">Error Handling</a>
+            <a class="nav-link" href="#s-fileio"        onclick="switchPage('core')">File I/O &amp; Context Mgrs</a>
+            <a class="nav-link" href="#s-builtins"      onclick="switchPage('core')">Builtins &amp; Operators</a>
+          </div>
+        </div>
+
+        <!-- Page 2: Advanced -->
+        <div class="nav-page-group">
+          <button class="nav-page-btn pg-closed" data-page="advanced" onclick="switchPage('advanced')">
+            <span class="pg-arrow">▾</span> Advanced
+          </button>
+          <div class="nav-page-links hidden" id="nav-links-advanced">
+            <div class="nav-section">OOP</div>
+            <a class="nav-link" href="#s-oop"           onclick="switchPage('advanced')">Classes &amp; Inheritance</a>
+            <a class="nav-link" href="#s-protocols"     onclick="switchPage('advanced')">Protocols &amp; ABCs</a>
+            <a class="nav-link" href="#s-dunder"        onclick="switchPage('advanced')">Dunder Methods</a>
+            <div class="nav-section">Patterns</div>
+            <a class="nav-link" href="#s-decorators"    onclick="switchPage('advanced')">Decorators</a>
+            <a class="nav-link" href="#s-generators"    onclick="switchPage('advanced')">Generators &amp; Iterators</a>
+            <a class="nav-link" href="#s-async"         onclick="switchPage('advanced')">Async / Await</a>
+            <div class="nav-section">Typing & Structure</div>
+            <a class="nav-link" href="#s-typehints"     onclick="switchPage('advanced')">Type Hints</a>
+            <a class="nav-link" href="#s-dataclasses"   onclick="switchPage('advanced')">Dataclasses</a>
+            <div class="nav-section">Performance</div>
+            <a class="nav-link" href="#s-memory"        onclick="switchPage('advanced')">Memory &amp; Performance</a>
+            <a class="nav-link" href="#s-concurrency"   onclick="switchPage('advanced')">Concurrency</a>
+          </div>
+        </div>
+
+        <!-- Page 3: Stdlib -->
+        <div class="nav-page-group">
+          <button class="nav-page-btn pg-closed" data-page="stdlib" onclick="switchPage('stdlib')">
+            <span class="pg-arrow">▾</span> Stdlib
+          </button>
+          <div class="nav-page-links hidden" id="nav-links-stdlib">
+            <div class="nav-section">OS & Files</div>
+            <a class="nav-link" href="#s-os"            onclick="switchPage('stdlib')">os &amp; sys</a>
+            <a class="nav-link" href="#s-pathlib"       onclick="switchPage('stdlib')">pathlib</a>
+            <div class="nav-section">Data Structures</div>
+            <a class="nav-link" href="#s-collections"   onclick="switchPage('stdlib')">collections</a>
+            <a class="nav-link" href="#s-itertools"     onclick="switchPage('stdlib')">itertools</a>
+            <a class="nav-link" href="#s-functools"     onclick="switchPage('stdlib')">functools</a>
+            <div class="nav-section">Data & Time</div>
+            <a class="nav-link" href="#s-datetime"      onclick="switchPage('stdlib')">datetime</a>
+            <a class="nav-link" href="#s-regex"         onclick="switchPage('stdlib')">Regular Expressions</a>
+            <a class="nav-link" href="#s-jsoncsvlog"    onclick="switchPage('stdlib')">json, csv &amp; logging</a>
+            <div class="nav-section">System</div>
+            <a class="nav-link" href="#s-subprocess"    onclick="switchPage('stdlib')">subprocess</a>
+            <a class="nav-link" href="#s-argparse"      onclick="switchPage('stdlib')">argparse</a>
+            <a class="nav-link" href="#s-unittest"      onclick="switchPage('stdlib')">unittest</a>
+          </div>
+        </div>
+
+        <!-- Page 4: Data Science -->
+        <div class="nav-page-group">
+          <button class="nav-page-btn pg-closed" data-page="datascience" onclick="switchPage('datascience')">
+            <span class="pg-arrow">▾</span> Data Science
+          </button>
+          <div class="nav-page-links hidden" id="nav-links-datascience">
+            <div class="nav-section">NumPy</div>
+            <a class="nav-link" href="#s-np-arrays"     onclick="switchPage('datascience')">Arrays &amp; Indexing</a>
+            <a class="nav-link" href="#s-np-ops"        onclick="switchPage('datascience')">Vectorised Ops</a>
+            <div class="nav-section">Pandas</div>
+            <a class="nav-link" href="#s-pd-basics"     onclick="switchPage('datascience')">Series &amp; DataFrame</a>
+            <a class="nav-link" href="#s-pd-ops"        onclick="switchPage('datascience')">Transform &amp; Clean</a>
+            <a class="nav-link" href="#s-pd-groupby"    onclick="switchPage('datascience')">GroupBy &amp; Merge</a>
+            <div class="nav-section">Visualisation</div>
+            <a class="nav-link" href="#s-matplotlib"    onclick="switchPage('datascience')">Matplotlib</a>
+            <div class="nav-section">Third-party</div>
+            <a class="nav-link" href="#s-requests"      onclick="switchPage('datascience')">requests</a>
+            <a class="nav-link" href="#s-pydantic"      onclick="switchPage('datascience')">Pydantic v2</a>
+            <a class="nav-link" href="#s-pytest"        onclick="switchPage('datascience')">pytest</a>
+            <a class="nav-link" href="#s-sqlalchemy"    onclick="switchPage('datascience')">SQLAlchemy</a>
+          </div>
+        </div>
+
+      </div><!-- /nav-body -->
+    </nav><!-- /sidebar -->
+  </div>
+</div><!-- /chrome -->
+
+<!-- ── Scrollable main ── -->
+<div id="main-wrapper">
+<main>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 — CORE LANGUAGE
+═══════════════════════════════════════ -->
+<div class="page-panel active" id="page-core">
+  <div class="part-heading"><span>01</span> Core Language</div>
+  <div class="part-sub">Types, strings, collections, control flow, functions, comprehensions, error handling, I/O</div>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Primitives</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-types">
+    <div class="section-header">
+      <div class="section-title">Types &amp; Literals</div>
+      <span class="ver-badge">int · float · complex · bool · None</span>
+    </div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Numeric types</div><pre><span class="cm"># int — arbitrary precision, no overflow</span>
+x = <span class="bi">10</span> ** <span class="bi">100</span>          <span class="cm"># googol works fine</span>
+<span class="bi">print</span>(<span class="bi">type</span>(x))         <span class="cm"># &lt;class 'int'&gt;</span>
+<span class="cm"># Numeric literals</span>
+h = <span class="bi">0xFF</span>; b = <span class="bi">0b1010</span>; big = <span class="bi">1_000_000</span>
+<span class="cm"># float — IEEE 754, use math.isclose()</span>
+<span class="kw">import</span> math
+<span class="bi">print</span>(math.isclose(<span class="bi">0.1</span> + <span class="bi">0.2</span>, <span class="bi">0.3</span>))  <span class="cm"># True</span>
+<span class="cm"># complex</span>
+z = <span class="bi">3</span> + <span class="bi">4j</span>; <span class="bi">print</span>(<span class="bi">abs</span>(z))  <span class="cm"># 5.0</span></pre></div>
+      <div class="card"><div class="card-label">Booleans &amp; None</div><pre><span class="cm"># Falsy: None False 0 0.0 '' [] {} set()</span>
+<span class="kw">for</span> v <span class="kw">in</span> [<span class="kw">None</span>, <span class="kw">False</span>, <span class="bi">0</span>, <span class="st">''</span>, [], {}]:
+    <span class="bi">print</span>(<span class="bi">bool</span>(v))         <span class="cm"># all False</span>
+<span class="cm"># None check — always use 'is'</span>
+result = <span class="kw">None</span>
+<span class="kw">if</span> result <span class="kw">is</span> <span class="kw">None</span>:       <span class="cm"># correct</span>
+    <span class="bi">print</span>(<span class="st">"not found"</span>)
+<span class="cm"># bool is int subclass</span>
+<span class="bi">print</span>(<span class="bi">sum</span>([<span class="kw">True</span>, <span class="kw">False</span>, <span class="kw">True</span>]))  <span class="cm"># 2</span></pre></div>
+      <div class="card"><div class="card-label">Type conversion</div><pre><span class="bi">print</span>(<span class="bi">int</span>(<span class="st">"0xFF"</span>, <span class="bi">16</span>))  <span class="cm"># 255</span>
+<span class="bi">print</span>(<span class="bi">int</span>(<span class="st">"0b1010"</span>, <span class="bi">2</span>)) <span class="cm"># 10</span>
+<span class="bi">print</span>(<span class="bi">int</span>(<span class="bi">3.9</span>))         <span class="cm"># 3 (truncates!)</span>
+<span class="bi">print</span>(<span class="bi">round</span>(<span class="bi">3.9</span>))       <span class="cm"># 4</span>
+<span class="bi">print</span>(<span class="bi">list</span>(<span class="st">"abc"</span>))      <span class="cm"># ['a','b','c']</span>
+<span class="bi">print</span>(<span class="bi">set</span>([<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">2</span>,<span class="bi">3</span>]))   <span class="cm"># {1,2,3}</span>
+<span class="bi">print</span>(<span class="bi">dict</span>(a=<span class="bi">1</span>, b=<span class="bi">2</span>))  <span class="cm"># {'a':1,'b':2}</span>
+b = <span class="st">"hello"</span>.encode(<span class="st">"utf-8"</span>)
+<span class="bi">print</span>(b.decode(<span class="st">"utf-8"</span>)) <span class="cm"># 'hello'</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-strings">
+    <div class="section-header"><div class="section-title">Strings</div><span class="ver-badge">immutable unicode · f-strings · methods · slicing</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Creation &amp; formatting</div><pre>name = <span class="st">"Alice"</span>; score = <span class="bi">98.567</span>
+<span class="cm"># f-string — standard (Python 3.6+)</span>
+<span class="bi">print</span>(<span class="st">f"Hello {name}, score: {score:.2f}"</span>)
+<span class="bi">print</span>(<span class="st">f"{1_000_000:,}"</span>)    <span class="cm"># 1,000,000</span>
+<span class="bi">print</span>(<span class="st">f"{255:#010x}"</span>)      <span class="cm"># 0x000000ff</span>
+<span class="bi">print</span>(<span class="st">f"{'left':&lt;10}|"</span>)    <span class="cm"># left align</span>
+<span class="cm"># debug shorthand (3.8+)</span>
+x = [<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>]
+<span class="bi">print</span>(<span class="st">f"{x=}"</span>)             <span class="cm"># x=[1, 2, 3]</span>
+<span class="bi">print</span>(<span class="st">f"{len(x)=}"</span>)        <span class="cm"># len(x)=3</span></pre></div>
+      <div class="card"><div class="card-label">Methods</div><pre>s = <span class="st">"  Hello, World!  "</span>
+<span class="bi">print</span>(s.strip())              <span class="cm"># 'Hello, World!'</span>
+<span class="bi">print</span>(s.strip().lower())      <span class="cm"># 'hello, world!'</span>
+<span class="bi">print</span>(<span class="st">"hello"</span>.title())       <span class="cm"># 'Hello'</span>
+<span class="bi">print</span>(<span class="st">"spam eggs"</span>.split())   <span class="cm"># ['spam','eggs']</span>
+<span class="bi">print</span>(<span class="st">","</span>.join([<span class="st">"a"</span>,<span class="st">"b"</span>,<span class="st">"c"</span>])) <span class="cm"># 'a,b,c'</span>
+<span class="bi">print</span>(<span class="st">"spam"</span> <span class="kw">in</span> s)           <span class="cm"># False</span>
+<span class="cm"># Python 3.9+</span>
+<span class="bi">print</span>(<span class="st">"https://x.com"</span>.removeprefix(<span class="st">"https://"</span>))</pre></div>
+      <div class="card"><div class="card-label">Slicing &amp; translate</div><pre>s = <span class="st">"Python 3.12"</span>
+<span class="bi">print</span>(s[:<span class="bi">6</span>])        <span class="cm"># 'Python'</span>
+<span class="bi">print</span>(s[-<span class="bi">4</span>:])       <span class="cm"># '3.12'</span>
+<span class="bi">print</span>(s[::-<span class="bi">1</span>])      <span class="cm"># reversed</span>
+<span class="cm"># Bulk char replace — fast</span>
+t = <span class="bi">str</span>.maketrans(<span class="st">"aeiou"</span>, <span class="st">"AEIOU"</span>)
+<span class="bi">print</span>(<span class="st">"hello"</span>.translate(t))  <span class="cm"># hEllO</span>
+<span class="cm"># Remove punctuation</span>
+<span class="kw">import</span> string
+clean = <span class="st">"Hi, World!"</span>.translate(
+    <span class="bi">str</span>.maketrans(<span class="st">''</span>,<span class="st">''</span>,string.punctuation))</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-str-validation">
+    <div class="section-header"><div class="section-title">Strings</div><span class="ver-badge">validation methods · is*()</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Validation methods</div><pre><span class="cm"># isdecimal vs isdigit vs isnumeric</span>
+<span class="bi">print</span>(<span class="st">"123"</span>.isdecimal())       <span class="cm"># True</span>
+<span class="bi">print</span>(<span class="st">"²"</span>.isdecimal())         <span class="cm"># False (superscript)</span>
+<span class="bi">print</span>(<span class="st">"²"</span>.isdigit())           <span class="cm"># True  (but int("²") raises!)</span>
+<span class="bi">print</span>(<span class="st">"½"</span>.isnumeric())         <span class="cm"># True  (fraction)</span>
+<span class="cm"># Safe int validation — use isdecimal()</span>
+<span class="kw">def</span> <span class="fn">safe_int</span>(s): <span class="kw">return</span> <span class="bi">int</span>(s) <span class="kw">if</span> s.isdecimal() <span class="kw">else</span> <span class="kw">None</span>
+<span class="bi">print</span>(safe_int(<span class="st">"42"</span>))          <span class="cm"># 42</span>
+<span class="bi">print</span>(safe_int(<span class="st">"4²"</span>))         <span class="cm"># None (safe)</span>
+<span class="cm"># isidentifier, isascii, isprintable</span>
+<span class="bi">print</span>(<span class="st">"valid_name"</span>.isidentifier()) <span class="cm"># True</span>
+<span class="bi">print</span>(<span class="st">"123bad"</span>.isidentifier())    <span class="cm"># False</span>
+<span class="bi">print</span>(<span class="st">"hello"</span>.isascii())          <span class="cm"># True</span>
+<span class="bi">print</span>(<span class="st">"héllo"</span>.isascii())          <span class="cm"># False</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-tstrings">
+    <div class="section-header"><div class="section-title">Strings</div><span class="ver-badge">t-strings · PEP 750 · Python 3.14+</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">t-strings (3.14+)</div><pre><span class="cm"># t-strings produce a Template object, not a string</span>
+<span class="kw">from</span> string.templatelib <span class="kw">import</span> Template
+name = <span class="st">"Alice"</span>
+t = <span class="kw">t</span><span class="st">"Hello, {name}!"</span>      <span class="cm"># Template, not str</span>
+<span class="bi">print</span>(t.strings)           <span class="cm"># ('Hello, ', '!')</span>
+<span class="bi">print</span>(t.interpolations[<span class="bi">0</span>].value)  <span class="cm"># 'Alice'</span>
+<span class="cm"># Library can sanitise before rendering</span>
+<span class="kw">def</span> <span class="fn">html_render</span>(tmpl: Template) -&gt; <span class="bi">str</span>:
+    <span class="kw">import</span> html
+    parts = []; strings = <span class="bi">iter</span>(tmpl.strings)
+    parts.append(<span class="bi">next</span>(strings))
+    <span class="kw">for</span> i, s <span class="kw">in</span> <span class="bi">zip</span>(tmpl.interpolations, strings):
+        parts.append(html.escape(<span class="bi">str</span>(i.value))); parts.append(s)
+    <span class="kw">return</span> <span class="st">""</span>.join(parts)
+xss = <span class="st">"&lt;script&gt;alert('xss')&lt;/script&gt;"</span>
+<span class="bi">print</span>(html_render(<span class="kw">t</span><span class="st">"&lt;p&gt;Welcome, {xss}!&lt;/p&gt;"</span>))  <span class="cm"># safe!</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-lists">
+    <div class="section-header"><div class="section-title">Lists</div><span class="ver-badge">mutable · ordered · O(1) append · Timsort</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Core operations</div><pre>nums = [<span class="bi">3</span>,<span class="bi">1</span>,<span class="bi">4</span>,<span class="bi">1</span>,<span class="bi">5</span>,<span class="bi">9</span>]
+nums.sort()                     <span class="cm"># in-place</span>
+s = <span class="bi">sorted</span>(nums, reverse=<span class="kw">True</span>)  <span class="cm"># new list</span>
+nums.append(<span class="bi">7</span>)                  <span class="cm"># O(1)</span>
+nums.pop()                      <span class="cm"># O(1) at end</span>
+<span class="cm"># Extended unpacking</span>
+first, *rest = nums
+*init, last  = nums
+a, *mid, z   = nums
+merged = [*[<span class="bi">1</span>,<span class="bi">2</span>], *[<span class="bi">3</span>,<span class="bi">4</span>]]     <span class="cm"># [1,2,3,4]</span></pre></div>
+      <div class="card"><div class="card-label">Correct 2D list</div><pre><span class="cm"># WRONG — 3 refs to same inner list!</span>
+bad = [[]] * <span class="bi">3</span>
+bad[<span class="bi">0</span>].append(<span class="bi">99</span>)
+<span class="bi">print</span>(bad)   <span class="cm"># [[99],[99],[99]]</span>
+
+<span class="cm"># CORRECT — independent inner lists</span>
+good = [[] <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">3</span>)]
+good[<span class="bi">0</span>].append(<span class="bi">99</span>)
+<span class="bi">print</span>(good)  <span class="cm"># [[99],[],[]]</span>
+
+<span class="cm"># Sort by multiple keys</span>
+people = [(<span class="st">"Bob"</span>,<span class="bi">30</span>),(<span class="st">"Alice"</span>,<span class="bi">25</span>),(<span class="st">"Bob"</span>,<span class="bi">25</span>)]
+people.sort(key=<span class="kw">lambda</span> x: (x[<span class="bi">1</span>], x[<span class="bi">0</span>]))</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-tuples">
+    <div class="section-header"><div class="section-title">Tuples</div><span class="ver-badge">immutable · hashable · NamedTuple</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Tuple essentials</div><pre>point = (<span class="bi">3</span>, <span class="bi">4</span>)
+single = (<span class="bi">42</span>,)          <span class="cm"># trailing comma required!</span>
+x, y = point
+<span class="cm"># As dict key (hashable)</span>
+grid = {(<span class="bi">0</span>,<span class="bi">0</span>): <span class="st">"origin"</span>, (<span class="bi">1</span>,<span class="bi">0</span>): <span class="st">"right"</span>}
+<span class="cm"># NamedTuple (preferred modern form)</span>
+<span class="kw">from</span> typing <span class="kw">import</span> NamedTuple
+<span class="kw">class</span> <span class="fn">Vector</span>(NamedTuple):
+    x: <span class="bi">float</span>; y: <span class="bi">float</span>; label: <span class="bi">str</span> = <span class="st">"v"</span>
+v = Vector(<span class="bi">1.0</span>, <span class="bi">2.0</span>)
+<span class="bi">print</span>(v.x, v._replace(y=<span class="bi">5.0</span>))</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-sets">
+    <div class="section-header"><div class="section-title">Sets &amp; Frozensets</div><span class="ver-badge">O(1) lookup · set arithmetic · hashable</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Set operations</div><pre>a = {<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>,<span class="bi">4</span>}; b = {<span class="bi">3</span>,<span class="bi">4</span>,<span class="bi">5</span>,<span class="bi">6</span>}
+empty = <span class="bi">set</span>()             <span class="cm"># NOT {}</span>
+<span class="bi">print</span>(a | b)              <span class="cm"># union</span>
+<span class="bi">print</span>(a &amp; b)              <span class="cm"># intersection {3,4}</span>
+<span class="bi">print</span>(a - b)              <span class="cm"># difference  {1,2}</span>
+<span class="bi">print</span>(a ^ b)              <span class="cm"># symmetric diff</span>
+<span class="bi">print</span>({<span class="bi">1</span>,<span class="bi">2</span>} &lt;= {<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>}) <span class="cm"># True (subset)</span>
+<span class="cm"># Order-preserving dedup</span>
+nums = [<span class="bi">3</span>,<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">1</span>,<span class="bi">3</span>]
+unique = <span class="bi">list</span>(<span class="bi">dict</span>.fromkeys(nums))  <span class="cm"># [3,1,2]</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-dicts">
+    <div class="section-header"><div class="section-title">Dictionaries</div><span class="ver-badge">ordered (3.7+) · O(1) · Counter · defaultdict</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Creation &amp; access</div><pre>d = {<span class="st">"name"</span>:<span class="st">"Alice"</span>, <span class="st">"age"</span>:<span class="bi">30</span>}
+<span class="bi">print</span>(d.get(<span class="st">"missing"</span>, <span class="st">"N/A"</span>)) <span class="cm"># safe</span>
+<span class="cm"># Merge (Python 3.9+)</span>
+merged = {<span class="st">"a"</span>:<span class="bi">1</span>} | {<span class="st">"b"</span>:<span class="bi">2</span>, <span class="st">"a"</span>:<span class="bi">99</span>}
+<span class="cm"># Unpack into function</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name, age): <span class="kw">return</span> <span class="st">f"{name}/{age}"</span>
+<span class="bi">print</span>(greet(**d))
+<span class="cm"># dict comprehension</span>
+sq = {x: x**<span class="bi">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">5</span>)}
+<span class="kw">for</span> k, v <span class="kw">in</span> d.items(): <span class="bi">print</span>(k, v)</pre></div>
+      <div class="card"><div class="card-label">Advanced patterns</div><pre><span class="kw">from</span> collections <span class="kw">import</span> defaultdict, Counter, ChainMap
+<span class="cm"># defaultdict — auto-init</span>
+groups = defaultdict(<span class="bi">list</span>)
+<span class="kw">for</span> n, d <span class="kw">in</span> [(<span class="st">"Alice"</span>,<span class="st">"Eng"</span>),(<span class="st">"Bob"</span>,<span class="st">"Eng"</span>)]:
+    groups[d].append(n)
+<span class="cm"># Counter</span>
+c = Counter(<span class="st">"aaabbc"</span>)
+<span class="bi">print</span>(c.most_common(<span class="bi">2</span>)) <span class="cm"># [('a',3),('b',2)]</span>
+<span class="cm"># ChainMap — layered config</span>
+cfg = ChainMap({<span class="st">"log"</span>:<span class="st">"DEBUG"</span>}, {<span class="st">"log"</span>:<span class="st">"INFO"</span>})
+<span class="bi">print</span>(cfg[<span class="st">"log"</span>])  <span class="cm"># 'DEBUG' (first wins)</span></pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Control &amp; Functions</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-flow">
+    <div class="section-header"><div class="section-title">Control Flow</div><span class="ver-badge">for/else · walrus · match/case (3.10+)</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Conditionals, loops &amp; match</div><pre><span class="cm"># for/else — no break = not found</span>
+<span class="kw">def</span> <span class="fn">first_prime</span>(lst):
+    <span class="kw">for</span> n <span class="kw">in</span> lst:
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">2</span>, <span class="bi">int</span>(n**<span class="bi">0.5</span>)+<span class="bi">1</span>):
+            <span class="kw">if</span> n % i == <span class="bi">0</span>: <span class="kw">break</span>
+        <span class="kw">else</span>: <span class="kw">return</span> n   <span class="cm"># no break = prime!</span>
+<span class="cm"># match/case (Python 3.10+)</span>
+<span class="kw">match</span> status:
+    <span class="kw">case</span> <span class="bi">200</span>: <span class="kw">return</span> <span class="st">"OK"</span>
+    <span class="kw">case</span> <span class="bi">404</span>: <span class="kw">return</span> <span class="st">"Not Found"</span>
+    <span class="kw">case</span> _:    <span class="kw">return</span> <span class="st">"Other"</span></pre></div>
+      <div class="card"><div class="card-label">Walrus operator &amp; ternary</div><pre><span class="kw">import</span> re
+text = <span class="st">"Error on line 42"</span>
+<span class="cm"># Walrus — assign + check in one expression</span>
+<span class="kw">if</span> m := re.search(<span class="st">r"line (\d+)"</span>, text):
+    <span class="bi">print</span>(m.group(<span class="bi">1</span>))    <span class="cm"># '42'</span>
+<span class="cm"># Walrus in comprehension</span>
+data = [<span class="bi">1</span>,-<span class="bi">2</span>,<span class="bi">3</span>,-<span class="bi">4</span>]
+res = [y <span class="kw">for</span> x <span class="kw">in</span> data <span class="kw">if</span> (y := x*x) > <span class="bi">4</span>]
+<span class="cm"># Ternary</span>
+status = <span class="st">"even"</span> <span class="kw">if</span> <span class="bi">10</span> % <span class="bi">2</span> == <span class="bi">0</span> <span class="kw">else</span> <span class="st">"odd"</span>
+<span class="cm"># Chained comparisons (Pythonic!)</span>
+<span class="bi">print</span>(<span class="bi">0</span> &lt; x &lt; <span class="bi">10</span>)       <span class="cm"># valid Python!</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-functions">
+    <div class="section-header"><div class="section-title">Functions</div><span class="ver-badge">*args · **kwargs · closures · partial</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Arguments &amp; defaults</div><pre><span class="cm"># Positional-only (/) and keyword-only (*)</span>
+<span class="kw">def</span> <span class="fn">create_user</span>(name, age, /, *, role=<span class="st">"user"</span>):
+    <span class="kw">return</span> {<span class="st">"name"</span>: name, <span class="st">"role"</span>: role}
+<span class="cm"># Mutable default — WRONG vs RIGHT</span>
+<span class="kw">def</span> <span class="fn">bad</span>(lst=[]): lst.append(<span class="bi">1</span>); <span class="kw">return</span> lst
+<span class="kw">def</span> <span class="fn">good</span>(lst=<span class="kw">None</span>):
+    <span class="kw">if</span> lst <span class="kw">is</span> <span class="kw">None</span>: lst = []
+    lst.append(<span class="bi">1</span>); <span class="kw">return</span> lst
+<span class="cm"># *args and **kwargs</span>
+<span class="kw">def</span> <span class="fn">log</span>(level, *msgs, sep=<span class="st">" "</span>, **meta):
+    <span class="bi">print</span>(<span class="st">f"[{level}]"</span>, sep.join(msgs))</pre></div>
+      <div class="card"><div class="card-label">Closures &amp; higher-order</div><pre><span class="kw">from</span> functools <span class="kw">import</span> partial
+<span class="kw">from</span> operator <span class="kw">import</span> itemgetter
+<span class="cm"># Closure factory</span>
+<span class="kw">def</span> <span class="fn">make_multiplier</span>(n):
+    <span class="kw">def</span> <span class="fn">multiply</span>(x): <span class="kw">return</span> x * n
+    <span class="kw">return</span> multiply
+triple = make_multiplier(<span class="bi">3</span>)
+<span class="bi">print</span>(triple(<span class="bi">7</span>))           <span class="cm"># 21</span>
+<span class="cm"># Loop closure fix — default arg</span>
+fns = [<span class="kw">lambda</span> x, i=i: x*i <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">4</span>)]
+<span class="cm"># partial</span>
+square = partial(<span class="kw">lambda</span> b,e: b**e, e=<span class="bi">2</span>)
+people = [{<span class="st">"n"</span>:<span class="st">"Bob"</span>,<span class="st">"age"</span>:<span class="bi">30</span>},{<span class="st">"n"</span>:<span class="st">"Al"</span>,<span class="st">"age"</span>:<span class="bi">25</span>}]
+<span class="bi">sorted</span>(people, key=itemgetter(<span class="st">"age"</span>))</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-comprehensions">
+    <div class="section-header"><div class="section-title">Comprehensions &amp; Generators</div><span class="ver-badge">list · dict · set · generator expr · yield</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">List, dict &amp; set comprehensions</div><pre>squares = [x**<span class="bi">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">10</span>)]
+evens   = [x <span class="kw">for</span> x <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">20</span>) <span class="kw">if</span> x % <span class="bi">2</span> == <span class="bi">0</span>]
+flat    = [x <span class="kw">for</span> row <span class="kw">in</span> [[<span class="bi">1</span>,<span class="bi">2</span>],[<span class="bi">3</span>,<span class="bi">4</span>]] <span class="kw">for</span> x <span class="kw">in</span> row]
+wl  = {w: <span class="bi">len</span>(w) <span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"hi"</span>,<span class="st">"hello"</span>]}
+uln = {<span class="bi">len</span>(w) <span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"hi"</span>,<span class="st">"hey"</span>,<span class="st">"hello"</span>]}
+<span class="cm"># Conditional expression</span>
+lbl = [<span class="st">"pos"</span> <span class="kw">if</span> x&gt;<span class="bi">0</span> <span class="kw">else</span> <span class="st">"neg"</span>
+       <span class="kw">for</span> x <span class="kw">in</span> [-<span class="bi">1</span>,<span class="bi">0</span>,<span class="bi">1</span>,<span class="bi">2</span>]]</pre></div>
+      <div class="card"><div class="card-label">Generator expressions &amp; yield</div><pre><span class="cm"># Generator — lazy O(1) memory</span>
+total = <span class="bi">sum</span>(x**<span class="bi">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">1_000_000</span>))
+<span class="cm"># Generator function</span>
+<span class="kw">def</span> <span class="fn">fibonacci</span>():
+    a, b = <span class="bi">0</span>, <span class="bi">1</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        <span class="kw">yield</span> a
+        a, b = b, a + b
+fib = fibonacci()
+<span class="bi">print</span>([<span class="bi">next</span>(fib) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">8</span>)])
+<span class="cm"># yield from — delegate</span>
+<span class="kw">def</span> <span class="fn">chain</span>(*its):
+    <span class="kw">for</span> it <span class="kw">in</span> its: <span class="kw">yield from</span> it</pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">I/O &amp; Builtins</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-errors">
+    <div class="section-header"><div class="section-title">Error Handling</div><span class="ver-badge">try/except/else/finally · exception chaining</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Try / except / finally</div><pre><span class="kw">from</span> contextlib <span class="kw">import</span> suppress
+<span class="kw">def</span> <span class="fn">read_cfg</span>(path):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="bi">open</span>(path) <span class="kw">as</span> f: data = f.read()
+    <span class="kw">except</span> FileNotFoundError:
+        <span class="kw">return</span> {}              <span class="cm"># expected</span>
+    <span class="kw">except</span> PermissionError <span class="kw">as</span> e:
+        <span class="kw">raise</span> RuntimeError(<span class="st">f"Cannot read"</span>) <span class="kw">from</span> e
+    <span class="kw">else</span>:                      <span class="cm"># only if no exception</span>
+        <span class="kw">import</span> json; <span class="kw">return</span> json.loads(data)
+    <span class="kw">finally</span>:
+        <span class="bi">print</span>(<span class="st">"attempted"</span>)    <span class="cm"># always runs</span></pre></div>
+      <div class="card"><div class="card-label">Custom exceptions</div><pre><span class="kw">class</span> <span class="fn">AppError</span>(Exception): <span class="kw">pass</span>
+<span class="kw">class</span> <span class="fn">ValidationError</span>(AppError):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, field, msg):
+        self.field = field
+        <span class="bi">super</span>().__init__(<span class="st">f"{field}: {msg}"</span>)
+<span class="cm"># raise from None — hide internal detail</span>
+<span class="kw">def</span> <span class="fn">get_user</span>(uid):
+    <span class="kw">try</span>: <span class="kw">return</span> db.find(uid)
+    <span class="kw">except</span> db.NotFoundError:
+        <span class="kw">raise</span> ValidationError(<span class="st">"id"</span>,<span class="st">"not found"</span>) <span class="kw">from</span> <span class="kw">None</span>
+<span class="cm"># suppress — silently ignore</span>
+<span class="kw">with</span> suppress(FileNotFoundError):
+    <span class="kw">import</span> os; os.remove(<span class="st">"tmp.txt"</span>)</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-fileio">
+    <div class="section-header"><div class="section-title">File I/O &amp; Context Managers</div><span class="ver-badge">with open · pathlib · @contextmanager</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">File I/O</div><pre><span class="kw">from</span> pathlib <span class="kw">import</span> Path
+<span class="cm"># Always use with + encoding</span>
+<span class="kw">with</span> <span class="bi">open</span>(<span class="st">"data.txt"</span>, <span class="st">"w"</span>, encoding=<span class="st">"utf-8"</span>) <span class="kw">as</span> f:
+    f.write(<span class="st">"Hello\n"</span>)
+<span class="cm"># Line-by-line (memory-efficient)</span>
+<span class="kw">with</span> <span class="bi">open</span>(<span class="st">"big.log"</span>, encoding=<span class="st">"utf-8"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> line <span class="kw">in</span> f: process(line.rstrip())
+<span class="cm"># Pathlib convenience</span>
+p = Path(<span class="st">"cfg.json"</span>)
+text = p.read_text(encoding=<span class="st">"utf-8"</span>)
+p.write_text(<span class="st">'{"k":"v"}'</span>, encoding=<span class="st">"utf-8"</span>)</pre></div>
+      <div class="card"><div class="card-label">Context managers</div><pre><span class="kw">from</span> contextlib <span class="kw">import</span> contextmanager
+<span class="kw">import</span> time
+<span class="de">@contextmanager</span>
+<span class="kw">def</span> <span class="fn">timer</span>(label=<span class="st">"elapsed"</span>):
+    start = time.perf_counter()
+    <span class="kw">try</span>:
+        <span class="kw">yield</span>
+    <span class="kw">finally</span>:
+        <span class="bi">print</span>(<span class="st">f"{label}: {time.perf_counter()-start:.3f}s"</span>)
+<span class="kw">with</span> timer(<span class="st">"sort"</span>):
+    <span class="bi">sorted</span>(<span class="bi">range</span>(<span class="bi">100_000</span>), reverse=<span class="kw">True</span>)
+<span class="cm"># ExitStack — dynamic CMs</span>
+<span class="kw">from</span> contextlib <span class="kw">import</span> ExitStack
+<span class="kw">with</span> ExitStack() <span class="kw">as</span> stack:
+    files = [stack.enter_context(<span class="bi">open</span>(f)) <span class="kw">for</span> f <span class="kw">in</span> fnames]</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-builtins">
+    <div class="section-header"><div class="section-title">Builtins &amp; Operators</div><span class="ver-badge">any/all · zip · enumerate · getattr · walrus</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Builtins &amp; operators</div><pre><span class="kw">import</span> itertools
+nums = [<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>,<span class="bi">4</span>,<span class="bi">5</span>]
+<span class="bi">print</span>(<span class="bi">any</span>(x &gt; <span class="bi">4</span> <span class="kw">for</span> x <span class="kw">in</span> nums))   <span class="cm"># True</span>
+<span class="bi">print</span>(<span class="bi">all</span>(x &gt; <span class="bi">0</span> <span class="kw">for</span> x <span class="kw">in</span> nums))   <span class="cm"># True</span>
+<span class="cm"># zip_longest</span>
+a, b = [<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>], [<span class="bi">10</span>,<span class="bi">20</span>]
+<span class="bi">list</span>(itertools.zip_longest(a,b,fillvalue=<span class="bi">0</span>))
+<span class="cm"># getattr with default</span>
+fn = <span class="bi">getattr</span>(obj, <span class="st">f"process_{fmt}"</span>, <span class="kw">lambda</span> d: d)
+<span class="cm"># Chained comparisons</span>
+<span class="bi">print</span>(<span class="bi">0</span> &lt; x &lt; <span class="bi">10</span>)               <span class="cm"># Pythonic!</span>
+<span class="cm"># vars() — instance dict</span>
+<span class="bi">print</span>(<span class="bi">vars</span>(Point(<span class="bi">1</span>,<span class="bi">2</span>)))           <span class="cm"># {'x':1,'y':2}</span></pre></div>
+    </div>
+  </section>
+
+</div><!-- /page-core -->
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 — ADVANCED PYTHON
+═══════════════════════════════════════ -->
+<div class="page-panel" id="page-advanced">
+  <div class="part-heading"><span>02</span> Advanced Python</div>
+  <div class="part-sub">OOP, protocols, dunders, decorators, generators, async, type hints, dataclasses, performance, concurrency</div>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">OOP</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-oop">
+    <div class="section-header"><div class="section-title">Classes &amp; Inheritance</div><span class="ver-badge">super() · @property · @classmethod · @staticmethod</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Classes, inheritance &amp; properties</div><pre><span class="kw">class</span> <span class="fn">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name: <span class="bi">str</span>): self.name = name
+    <span class="de">@property</span>
+    <span class="kw">def</span> <span class="fn">sound</span>(self): <span class="kw">return</span> self._sound
+    <span class="de">@sound.setter</span>
+    <span class="kw">def</span> <span class="fn">sound</span>(self, v): self._sound = v.lower()
+    <span class="de">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">from_dict</span>(cls, d): <span class="kw">return</span> cls(d[<span class="st">"name"</span>])
+    <span class="de">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">valid</span>(n: <span class="bi">str</span>): <span class="kw">return</span> <span class="bi">bool</span>(n <span class="kw">and</span> n[<span class="bi">0</span>].isupper())
+<span class="kw">class</span> <span class="fn">Dog</span>(Animal):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name, breed):
+        <span class="bi">super</span>().__init__(name); self.sound = <span class="st">"woof"</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-protocols">
+    <div class="section-header"><div class="section-title">Protocols &amp; Abstract Classes</div><span class="ver-badge">abc.ABC · @abstractmethod · typing.Protocol</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Protocols &amp; abstract classes</div><pre><span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+<span class="kw">from</span> typing <span class="kw">import</span> Protocol, runtime_checkable
+<span class="kw">class</span> <span class="fn">Shape</span>(ABC):
+    <span class="de">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">area</span>(self) -&gt; <span class="bi">float</span>: ...
+<span class="de">@runtime_checkable</span>
+<span class="kw">class</span> <span class="fn">Drawable</span>(Protocol):
+    <span class="kw">def</span> <span class="fn">draw</span>(self) -&gt; <span class="kw">None</span>: ...
+<span class="kw">class</span> <span class="fn">Button</span>:             <span class="cm"># no inheritance!</span>
+    <span class="kw">def</span> <span class="fn">draw</span>(self): <span class="bi">print</span>(<span class="st">"button"</span>)
+<span class="kw">def</span> <span class="fn">render</span>(item: Drawable): item.draw()
+render(Button())          <span class="cm"># works</span>
+<span class="bi">print</span>(<span class="bi">isinstance</span>(Button(), Drawable)) <span class="cm"># True</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-dunder">
+    <div class="section-header"><div class="section-title">Dunder Methods</div><span class="ver-badge">__repr__ · __add__ · __eq__/__hash__ · total_ordering</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Core dunders</div><pre><span class="kw">from</span> functools <span class="kw">import</span> total_ordering
+<span class="de">@total_ordering</span>
+<span class="kw">class</span> <span class="fn">Money</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, amt, cur=<span class="st">"USD"</span>):
+        self.amount = <span class="bi">round</span>(amt,<span class="bi">2</span>); self.currency = cur
+    <span class="kw">def</span> <span class="fn">__repr__</span>(self):
+        <span class="kw">return</span> <span class="st">f"Money({self.amount!r})"</span>
+    <span class="kw">def</span> <span class="fn">__add__</span>(self, o):
+        <span class="kw">return</span> Money(self.amount + o.amount, self.currency)
+    <span class="kw">def</span> <span class="fn">__eq__</span>(self, o):
+        <span class="kw">return</span> <span class="bi">isinstance</span>(o, Money) <span class="kw">and</span> self.amount==o.amount
+    <span class="kw">def</span> <span class="fn">__lt__</span>(self, o): <span class="kw">return</span> self.amount &lt; o.amount
+    <span class="kw">def</span> <span class="fn">__hash__</span>(self): <span class="kw">return</span> <span class="bi">hash</span>(self.amount)</pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Patterns</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-decorators">
+    <div class="section-header"><div class="section-title">Decorators</div><span class="ver-badge">@wraps · parametrised · @lru_cache · @cache</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Function &amp; parametrised</div><pre><span class="kw">import</span> functools, time
+<span class="kw">def</span> <span class="fn">log_calls</span>(func):
+    <span class="de">@functools.wraps</span>(func)
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kw):
+        <span class="bi">print</span>(<span class="st">f"Calling {func.__name__}"</span>)
+        <span class="kw">return</span> func(*args, **kw)
+    <span class="kw">return</span> wrapper
+<span class="kw">def</span> <span class="fn">retry</span>(n=<span class="bi">3</span>, delay=<span class="bi">1.0</span>):
+    <span class="kw">def</span> <span class="fn">deco</span>(func):
+        <span class="de">@functools.wraps</span>(func)
+        <span class="kw">def</span> <span class="fn">wrap</span>(*a, **kw):
+            <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(n):
+                <span class="kw">try</span>: <span class="kw">return</span> func(*a, **kw)
+                <span class="kw">except</span>:
+                    <span class="kw">if</span> i==n-<span class="bi">1</span>: <span class="kw">raise</span>
+                    time.sleep(delay)
+        <span class="kw">return</span> wrap
+    <span class="kw">return</span> deco</pre></div>
+      <div class="card"><div class="card-label">Built-in decorators</div><pre><span class="kw">import</span> functools, math
+<span class="kw">class</span> <span class="fn">Circle</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, r): self._r = r
+    <span class="de">@property</span>
+    <span class="kw">def</span> <span class="fn">radius</span>(self): <span class="kw">return</span> self._r
+    <span class="de">@functools.cached_property</span>
+    <span class="kw">def</span> <span class="fn">area</span>(self): <span class="kw">return</span> math.pi * self._r**<span class="bi">2</span>
+    <span class="de">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">unit</span>(cls): <span class="kw">return</span> cls(<span class="bi">1.0</span>)
+
+<span class="de">@functools.lru_cache</span>(maxsize=<span class="bi">128</span>)
+<span class="kw">def</span> <span class="fn">fib</span>(n: <span class="bi">int</span>) -&gt; <span class="bi">int</span>:
+    <span class="kw">return</span> n <span class="kw">if</span> n &lt; <span class="bi">2</span> <span class="kw">else</span> fib(n-<span class="bi">1</span>) + fib(n-<span class="bi">2</span>)
+<span class="bi">print</span>(fib(<span class="bi">50</span>), fib.cache_info())</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-generators">
+    <div class="section-header"><div class="section-title">Generators &amp; Iterators</div><span class="ver-badge">__iter__/__next__ · yield · send() · yield from</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Full iterator protocol</div><pre><span class="kw">from</span> itertools <span class="kw">import</span> islice
+<span class="kw">def</span> <span class="fn">integers</span>(n=<span class="bi">0</span>):
+    <span class="kw">while</span> <span class="kw">True</span>: <span class="kw">yield</span> n; n += <span class="bi">1</span>
+<span class="bi">print</span>(<span class="bi">list</span>(islice(integers(<span class="bi">10</span>),<span class="bi">5</span>))) <span class="cm"># [10-14]</span>
+<span class="cm"># send() — coroutine-style</span>
+<span class="kw">def</span> <span class="fn">accumulator</span>():
+    total = <span class="bi">0</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        value = <span class="kw">yield</span> total
+        <span class="kw">if</span> value <span class="kw">is</span> <span class="kw">None</span>: <span class="kw">break</span>
+        total += value
+acc = accumulator(); <span class="bi">next</span>(acc)
+acc.send(<span class="bi">10</span>); <span class="bi">print</span>(acc.send(<span class="bi">20</span>)) <span class="cm"># 30</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-async">
+    <div class="section-header"><div class="section-title">Async / Await</div><span class="ver-badge">asyncio · gather · TaskGroup (3.11+) · Semaphore</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">asyncio</div><pre><span class="kw">import</span> asyncio
+<span class="kw">async def</span> <span class="fn">fetch</span>(name, delay):
+    <span class="kw">await</span> asyncio.sleep(delay)
+    <span class="kw">return</span> <span class="st">f"{name}: done"</span>
+<span class="cm"># gather — concurrent, ~1s not 2s</span>
+<span class="kw">async def</span> <span class="fn">main</span>():
+    results = <span class="kw">await</span> asyncio.gather(
+        fetch(<span class="st">"A"</span>,<span class="bi">1.0</span>), fetch(<span class="st">"B"</span>,<span class="bi">0.5</span>))
+    <span class="kw">return</span> results
+<span class="cm"># Semaphore — limit concurrency</span>
+sem = asyncio.Semaphore(<span class="bi">10</span>)
+<span class="kw">async def</span> <span class="fn">one</span>(url):
+    <span class="kw">async with</span> sem: <span class="kw">return await</span> do_fetch(url)
+asyncio.run(main())</pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Typing &amp; Structure</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-typehints">
+    <div class="section-header"><div class="section-title">Type Hints</div><span class="ver-badge">PEP 484 · TypeVar · Generic · Protocol · ParamSpec</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Typing module</div><pre><span class="kw">from</span> __future__ <span class="kw">import</span> annotations
+<span class="kw">from</span> typing <span class="kw">import</span> TypeVar, Generic, Callable, Literal
+T = TypeVar(<span class="st">"T"</span>)
+<span class="kw">def</span> <span class="fn">first</span>(items: <span class="bi">list</span>[T]) -&gt; T | <span class="kw">None</span>:
+    <span class="kw">return</span> items[<span class="bi">0</span>] <span class="kw">if</span> items <span class="kw">else</span> <span class="kw">None</span>
+<span class="kw">class</span> <span class="fn">Stack</span>(Generic[T]):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self): self._i: <span class="bi">list</span>[T] = []
+    <span class="kw">def</span> <span class="fn">push</span>(self, x: T): self._i.append(x)
+    <span class="kw">def</span> <span class="fn">pop</span>(self) -&gt; T: <span class="kw">return</span> self._i.pop()
+Mode = Literal[<span class="st">"r"</span>,<span class="st">"w"</span>,<span class="st">"a"</span>]  <span class="cm"># restricted values</span>
+<span class="kw">from</span> typing <span class="kw">import</span> TypedDict
+<span class="kw">class</span> <span class="fn">Config</span>(TypedDict):
+    host: <span class="bi">str</span>; port: <span class="bi">int</span>; debug: <span class="bi">bool</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-dataclasses">
+    <div class="section-header"><div class="section-title">Dataclasses</div><span class="ver-badge">@dataclass · frozen · slots · field()</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Dataclass essentials</div><pre><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="de">@dataclass</span>(order=<span class="kw">True</span>, slots=<span class="kw">True</span>)
+<span class="kw">class</span> <span class="fn">Version</span>:
+    major: <span class="bi">int</span>; minor: <span class="bi">int</span> = <span class="bi">0</span>; patch: <span class="bi">int</span> = <span class="bi">0</span>
+    pre: <span class="bi">str</span> = field(default=<span class="st">""</span>, compare=<span class="kw">False</span>)
+    <span class="kw">def</span> <span class="fn">__post_init__</span>(self):
+        <span class="kw">if</span> self.major &lt; <span class="bi">0</span>: <span class="kw">raise</span> ValueError
+    <span class="kw">def</span> <span class="fn">__str__</span>(self): <span class="kw">return</span> <span class="st">f"{self.major}.{self.minor}.{self.patch}"</span>
+<span class="de">@dataclass</span>(frozen=<span class="kw">True</span>)
+<span class="kw">class</span> <span class="fn">Point</span>:
+    x: <span class="bi">float</span>; y: <span class="bi">float</span>
+    tags: <span class="bi">tuple</span> = field(default_factory=<span class="bi">tuple</span>)
+p = Point(<span class="bi">1.0</span>,<span class="bi">2.0</span>); seen = {p}  <span class="cm"># hashable</span></pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Performance &amp; Concurrency</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-memory">
+    <div class="section-header"><div class="section-title">Memory &amp; Performance</div><span class="ver-badge">__slots__ · cProfile · timeit · tracemalloc</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Profiling &amp; optimisation</div><pre><span class="kw">import</span> sys, timeit
+<span class="kw">class</span> <span class="fn">WithSlots</span>:
+    __slots__ = (<span class="st">"x"</span>,<span class="st">"y"</span>)
+    <span class="kw">def</span> <span class="fn">__init__</span>(self,x,y): self.x=x;self.y=y
+<span class="bi">print</span>(sys.getsizeof(WithSlots(<span class="bi">1</span>,<span class="bi">2</span>)))  <span class="cm"># ~56B</span>
+<span class="cm"># timeit microbenchmark</span>
+t = timeit.timeit(<span class="st">"sum(range(1000))"</span>, number=<span class="bi">10_000</span>)
+<span class="bi">print</span>(<span class="st">f"{t:.3f}s"</span>)
+<span class="cm"># Local var cache in hot loop</span>
+<span class="kw">import</span> math
+<span class="kw">def</span> <span class="fn">fast</span>(xs):
+    sqrt = math.sqrt      <span class="cm"># avoid attr lookup</span>
+    <span class="kw">return</span> [sqrt(x) <span class="kw">for</span> x <span class="kw">in</span> xs]</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-concurrency">
+    <div class="section-header"><div class="section-title">Concurrency</div><span class="ver-badge">ThreadPoolExecutor · ProcessPoolExecutor · queue.Queue</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Threading, multiprocessing &amp; futures</div><pre><span class="kw">from</span> concurrent.futures <span class="kw">import</span> ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+<span class="kw">import</span> math
+<span class="cm"># I/O bound — ThreadPoolExecutor</span>
+<span class="kw">with</span> ThreadPoolExecutor(max_workers=<span class="bi">5</span>) <span class="kw">as</span> ex:
+    futures = {ex.submit(fetch, url): url <span class="kw">for</span> url <span class="kw">in</span> urls}
+    <span class="kw">for</span> fut <span class="kw">in</span> as_completed(futures):
+        <span class="bi">print</span>(futures[fut], fut.result())
+<span class="cm"># CPU bound — ProcessPoolExecutor</span>
+<span class="kw">def</span> <span class="fn">is_prime</span>(n):
+    <span class="kw">return</span> n &gt; <span class="bi">1</span> <span class="kw">and</span> <span class="bi">all</span>(n%i!=<span class="bi">0</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">2</span>,<span class="bi">int</span>(math.sqrt(n))+<span class="bi">1</span>))
+<span class="kw">with</span> ProcessPoolExecutor() <span class="kw">as</span> ex:
+    results = <span class="bi">list</span>(ex.map(is_prime, <span class="bi">range</span>(<span class="bi">10_000</span>,<span class="bi">10_100</span>)))</pre></div>
+    </div>
+  </section>
+
+</div><!-- /page-advanced -->
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 3 — STANDARD LIBRARY
+═══════════════════════════════════════ -->
+<div class="page-panel" id="page-stdlib">
+  <div class="part-heading"><span>03</span> Standard Library</div>
+  <div class="part-sub">os, sys, pathlib, collections, itertools, functools, datetime, re, json, csv, logging, subprocess, argparse, unittest</div>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">OS &amp; Files</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-os">
+    <div class="section-header"><div class="section-title">os &amp; sys</div><span class="ver-badge">os.environ · os.walk · sys.argv · sys.path</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">os module</div><pre><span class="kw">import</span> os, shutil
+db = os.environ.get(<span class="st">"DATABASE_URL"</span>, <span class="st">"sqlite:///app.db"</span>)
+os.makedirs(<span class="st">"output/2024"</span>, exist_ok=<span class="kw">True</span>)  <span class="cm"># safe</span>
+<span class="kw">for</span> root, dirs, files <span class="kw">in</span> os.walk(<span class="st">"src"</span>):
+    dirs[:] = [d <span class="kw">for</span> d <span class="kw">in</span> dirs <span class="kw">if</span> <span class="kw">not</span> d.startswith(<span class="st">"."</span>)]
+    <span class="kw">for</span> f <span class="kw">in</span> files:
+        <span class="kw">if</span> f.endswith(<span class="st">".py"</span>):
+            <span class="bi">print</span>(os.path.join(root, f))
+<span class="bi">print</span>(<span class="st">f"PID:{os.getpid()} CPUs:{os.cpu_count()}"</span>)
+shutil.rmtree(<span class="st">"temp"</span>)   <span class="cm"># recursive delete</span></pre></div>
+      <div class="card"><div class="card-label">sys module</div><pre><span class="kw">import</span> sys, io
+<span class="bi">print</span>(sys.version_info.major, sys.platform)
+<span class="cm"># Capture stdout</span>
+old = sys.stdout; sys.stdout = buf = io.StringIO()
+<span class="bi">print</span>(<span class="st">"captured"</span>)
+sys.stdout = old
+<span class="bi">print</span>(<span class="bi">repr</span>(buf.getvalue()))  <span class="cm"># 'captured\n'</span>
+<span class="cm"># Recursion limit</span>
+sys.setrecursionlimit(<span class="bi">10_000</span>)
+<span class="kw">def</span> <span class="fn">main</span>():
+    <span class="kw">if</span> <span class="bi">len</span>(sys.argv) &lt; <span class="bi">2</span>:
+        <span class="bi">print</span>(<span class="st">"Usage..."</span>, file=sys.stderr)
+        sys.exit(<span class="bi">1</span>)            <span class="cm"># non-zero = error</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-pathlib">
+    <div class="section-header"><div class="section-title">pathlib</div><span class="ver-badge">Path · / operator · glob · read_text/write_text</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Path operations</div><pre><span class="kw">from</span> pathlib <span class="kw">import</span> Path
+base   = Path(<span class="st">"/data"</span>)
+config = base / <span class="st">"config"</span> / <span class="st">"settings.yaml"</span>
+p = Path(<span class="st">"reports/annual.csv"</span>)
+<span class="bi">print</span>(p.name, p.stem, p.suffix, p.parent)
+p.mkdir(parents=<span class="kw">True</span>, exist_ok=<span class="kw">True</span>)
+py_files = <span class="bi">list</span>(Path(<span class="st">"src"</span>).rglob(<span class="st">"*.py"</span>))
+<span class="cm"># Read / write shortcuts</span>
+text = Path(<span class="st">"cfg.json"</span>).read_text(encoding=<span class="st">"utf-8"</span>)
+Path(<span class="st">"cfg.json"</span>).write_text(<span class="st">'{"k":"v"}'</span>, encoding=<span class="st">"utf-8"</span>)
+<span class="cm"># Change extension</span>
+new = Path(<span class="st">"report.txt"</span>).with_suffix(<span class="st">".pdf"</span>)</pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Data Structures</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-collections">
+    <div class="section-header"><div class="section-title">collections</div><span class="ver-badge">deque · Counter · defaultdict · namedtuple · ChainMap</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">deque, Counter, defaultdict</div><pre><span class="kw">from</span> collections <span class="kw">import</span> deque, Counter, defaultdict
+dq = deque([<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>], maxlen=<span class="bi">5</span>)
+dq.appendleft(<span class="bi">0</span>); dq.rotate(<span class="bi">2</span>)   <span class="cm"># O(1)</span>
+c = Counter(<span class="st">"aaabbc"</span>)
+<span class="bi">print</span>(c + Counter(<span class="st">"abcd"</span>))    <span class="cm"># combine</span>
+<span class="bi">print</span>(c.most_common(<span class="bi">2</span>))       <span class="cm"># [('a',3),...]</span>
+groups = defaultdict(<span class="bi">list</span>)
+<span class="kw">for</span> n, d <span class="kw">in</span> [(<span class="st">"A"</span>,<span class="st">"E"</span>),(<span class="st">"B"</span>,<span class="st">"E"</span>),(<span class="st">"C"</span>,<span class="st">"H"</span>)]:
+    groups[d].append(n)
+<span class="bi">print</span>(<span class="bi">dict</span>(groups))</pre></div>
+      <div class="card"><div class="card-label">namedtuple &amp; ChainMap</div><pre><span class="kw">from</span> collections <span class="kw">import</span> namedtuple, ChainMap
+Point = namedtuple(<span class="st">"Point"</span>, [<span class="st">"x"</span>,<span class="st">"y"</span>])
+p = Point(<span class="bi">3</span>, <span class="bi">4</span>)
+<span class="bi">print</span>(p.x, p._asdict(), p._replace(x=<span class="bi">10</span>))
+<span class="cm"># ChainMap — layered config</span>
+sys_d = {<span class="st">"debug"</span>:<span class="kw">False</span>,<span class="st">"log"</span>:<span class="st">"INFO"</span>}
+env_d = {<span class="st">"log"</span>:<span class="st">"DEBUG"</span>}
+cli_d = {<span class="st">"workers"</span>:<span class="bi">8</span>}
+cfg = ChainMap(cli_d, env_d, sys_d)
+<span class="bi">print</span>(cfg[<span class="st">"log"</span>])      <span class="cm"># 'DEBUG' (env wins)</span>
+<span class="bi">print</span>(cfg[<span class="st">"workers"</span>])  <span class="cm"># 8 (cli wins)</span>
+<span class="bi">print</span>(cfg[<span class="st">"debug"</span>])    <span class="cm"># False (sys default)</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-itertools">
+    <div class="section-header"><div class="section-title">itertools</div><span class="ver-badge">chain · groupby · accumulate · batched · combinatorics</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Iterators &amp; combinatorics</div><pre><span class="kw">from</span> itertools <span class="kw">import</span> (chain, groupby, accumulate,
+                         batched, combinations, product)
+flat = <span class="bi">list</span>(chain.from_iterable([[<span class="bi">1</span>,<span class="bi">2</span>],[<span class="bi">3</span>,<span class="bi">4</span>]]))
+data = [(<span class="st">"A"</span>,<span class="st">"x"</span>),(<span class="st">"B"</span>,<span class="st">"y"</span>),(<span class="st">"A"</span>,<span class="st">"z"</span>)]
+<span class="kw">for</span> k, g <span class="kw">in</span> groupby(<span class="bi">sorted</span>(data),key=<span class="kw">lambda</span> t:t[<span class="bi">0</span>]):
+    <span class="bi">print</span>(k, <span class="bi">list</span>(g))
+<span class="cm"># accumulate — running totals</span>
+<span class="bi">print</span>(<span class="bi">list</span>(accumulate([<span class="bi">100</span>,<span class="bi">200</span>,<span class="bi">150</span>])))  <span class="cm"># [100,300,450]</span>
+<span class="kw">for</span> batch <span class="kw">in</span> batched(<span class="bi">range</span>(<span class="bi">10</span>), <span class="bi">3</span>):    <span class="cm"># 3.12+</span>
+    <span class="bi">print</span>(batch)  <span class="cm"># (0,1,2),(3,4,5),(6,7,8),(9,)</span>
+<span class="bi">print</span>(<span class="bi">list</span>(combinations(<span class="st">"ABC"</span>, <span class="bi">2</span>)))</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-functools">
+    <div class="section-header"><div class="section-title">functools</div><span class="ver-badge">lru_cache · cache · partial · reduce · singledispatch</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Higher-order tools</div><pre><span class="kw">from</span> functools <span class="kw">import</span> cache, partial, reduce, singledispatch
+<span class="kw">import</span> operator
+<span class="de">@cache</span>                       <span class="cm"># Python 3.9+</span>
+<span class="kw">def</span> <span class="fn">fib</span>(n): <span class="kw">return</span> n <span class="kw">if</span> n&lt;<span class="bi">2</span> <span class="kw">else</span> fib(n-<span class="bi">1</span>)+fib(n-<span class="bi">2</span>)
+square = partial(<span class="kw">lambda</span> b,e: b**e, e=<span class="bi">2</span>)
+fact   = <span class="kw">lambda</span> n: reduce(operator.mul, <span class="bi">range</span>(<span class="bi">1</span>,n+<span class="bi">1</span>),<span class="bi">1</span>)
+<span class="de">@singledispatch</span>
+<span class="kw">def</span> <span class="fn">to_str</span>(obj): <span class="kw">raise</span> TypeError
+<span class="de">@to_str.register</span>(<span class="bi">int</span>)
+<span class="de">@to_str.register</span>(<span class="bi">float</span>)
+<span class="kw">def</span> <span class="fn">_</span>(obj): <span class="kw">return</span> <span class="bi">str</span>(obj)
+<span class="de">@to_str.register</span>(<span class="bi">list</span>)
+<span class="kw">def</span> <span class="fn">_</span>(obj): <span class="kw">return</span> <span class="st">"["</span>+<span class="st">","</span>.join(<span class="bi">map</span>(to_str,obj))+<span class="st">"]"</span></pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Data &amp; Time</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-datetime">
+    <div class="section-header"><div class="section-title">datetime</div><span class="ver-badge">timezone-aware · zoneinfo · timedelta · strptime</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Date &amp; time operations</div><pre><span class="kw">from</span> datetime <span class="kw">import</span> datetime, date, timedelta, timezone
+<span class="kw">from</span> zoneinfo <span class="kw">import</span> ZoneInfo   <span class="cm"># Python 3.9+</span>
+<span class="cm"># Always timezone-aware UTC</span>
+now = datetime.now(timezone.utc)
+<span class="bi">print</span>(now.isoformat())    <span class="cm"># '2024-...+00:00'</span>
+ist = ZoneInfo(<span class="st">"Asia/Kolkata"</span>)
+<span class="bi">print</span>(now.astimezone(ist).strftime(<span class="st">"%Y-%m-%d %H:%M %Z"</span>))
+<span class="cm"># Arithmetic</span>
+deadline = now + timedelta(days=<span class="bi">30</span>, hours=<span class="bi">8</span>)
+<span class="bi">print</span>((deadline - now).days)
+<span class="cm"># Parse</span>
+dt = datetime.fromisoformat(<span class="st">"2024-11-15T10:30:00+05:30"</span>)</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-regex">
+    <div class="section-header"><div class="section-title">Regular Expressions</div><span class="ver-badge">re.compile · search · findall · sub · VERBOSE</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">re module</div><pre><span class="kw">import</span> re
+EMAIL = re.compile(
+    <span class="st">r"(?P&lt;user&gt;[\w.+-]+)@(?P&lt;domain&gt;[\w-]+\.[\w.]+)"</span>,
+    re.IGNORECASE)
+<span class="kw">def</span> <span class="fn">parse_email</span>(s):
+    <span class="kw">if</span> m := EMAIL.fullmatch(s.strip()):
+        <span class="kw">return</span> m.group(<span class="st">"user"</span>), m.group(<span class="st">"domain"</span>)
+text = <span class="st">"Call 123-456-7890 or 987-654-3210"</span>
+<span class="bi">print</span>(re.findall(<span class="st">r"\d{3}-\d{3}-\d{4}"</span>, text))
+masked = re.sub(<span class="st">r"\d"</span>, <span class="kw">lambda</span> m: <span class="st">"*"</span>, <span class="st">"Card: 1234"</span>)
+parts = re.split(<span class="st">r"[,;\s]+"</span>, <span class="st">"one,two; three  four"</span>)</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-jsoncsvlog">
+    <div class="section-header"><div class="section-title">json, csv &amp; logging</div><span class="ver-badge">json.dumps · csv.DictReader · logging.dictConfig</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">json &amp; csv</div><pre><span class="kw">import</span> json, csv
+<span class="kw">class</span> <span class="fn">Enc</span>(json.JSONEncoder):
+    <span class="kw">def</span> <span class="fn">default</span>(self, o):
+        <span class="kw">from</span> datetime <span class="kw">import</span> datetime
+        <span class="kw">if</span> <span class="bi">isinstance</span>(o, datetime): <span class="kw">return</span> o.isoformat()
+        <span class="kw">return</span> <span class="bi">super</span>().default(o)
+s = json.dumps({<span class="st">"ts"</span>: <span class="bi">__import__</span>(<span class="st">"datetime"</span>).datetime.now()}, cls=Enc)
+<span class="cm"># CSV — always newline=''</span>
+<span class="kw">with</span> <span class="bi">open</span>(<span class="st">"data.csv"</span>,<span class="st">"w"</span>,newline=<span class="st">""</span>,encoding=<span class="st">"utf-8"</span>) <span class="kw">as</span> f:
+    w = csv.DictWriter(f, fieldnames=[<span class="st">"name"</span>,<span class="st">"age"</span>])
+    w.writeheader(); w.writerow({<span class="st">"name"</span>:<span class="st">"Alice"</span>,<span class="st">"age"</span>:<span class="bi">30</span>})</pre></div>
+      <div class="card"><div class="card-label">logging</div><pre><span class="kw">import</span> logging, logging.config
+logging.config.dictConfig({
+    <span class="st">"version"</span>:<span class="bi">1</span>,<span class="st">"disable_existing_loggers"</span>:<span class="kw">False</span>,
+    <span class="st">"formatters"</span>:{<span class="st">"f"</span>:{<span class="st">"format"</span>:<span class="st">"%(asctime)s %(levelname)s %(message)s"</span>}},
+    <span class="st">"handlers"</span>:{<span class="st">"c"</span>:{<span class="st">"class"</span>:<span class="st">"logging.StreamHandler"</span>,<span class="st">"formatter"</span>:<span class="st">"f"</span>}},
+    <span class="st">"root"</span>:{<span class="st">"level"</span>:<span class="st">"DEBUG"</span>,<span class="st">"handlers"</span>:[<span class="st">"c"</span>]}})
+log = logging.getLogger(__name__)
+<span class="cm"># Use %s NOT f-strings — lazy formatting</span>
+log.info(<span class="st">"User %s logged in"</span>, <span class="st">"alice"</span>)
+log.error(<span class="st">"Failed: %s"</span>, <span class="st">"timeout"</span>, exc_info=<span class="kw">True</span>)</pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">System</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-subprocess">
+    <div class="section-header"><div class="section-title">subprocess</div><span class="ver-badge">run · capture_output · check · timeout · Popen</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Running external commands</div><pre><span class="kw">import</span> subprocess
+<span class="cm"># Always pass a list — avoids shell injection</span>
+r = subprocess.run(
+    [<span class="st">"git"</span>,<span class="st">"log"</span>,<span class="st">"--oneline"</span>,<span class="st">"-5"</span>],
+    capture_output=<span class="kw">True</span>, text=<span class="kw">True</span>,
+    check=<span class="kw">True</span>, timeout=<span class="bi">30</span>)
+<span class="bi">print</span>(r.stdout)
+<span class="kw">try</span>:
+    subprocess.run([<span class="st">"bad_cmd"</span>], check=<span class="kw">True</span>)
+<span class="kw">except</span> subprocess.CalledProcessError <span class="kw">as</span> e:
+    <span class="bi">print</span>(e.returncode, e.stderr)
+<span class="kw">except</span> subprocess.TimeoutExpired:
+    <span class="bi">print</span>(<span class="st">"timed out"</span>)</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-argparse">
+    <div class="section-header"><div class="section-title">argparse</div><span class="ver-badge">add_argument · choices · action · subparsers</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Command-line parsing</div><pre><span class="kw">import</span> argparse
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+p = argparse.ArgumentParser(description=<span class="st">"Tool"</span>)
+p.add_argument(<span class="st">"input"</span>, type=Path)
+p.add_argument(<span class="st">"-o"</span>,<span class="st">"--output"</span>, type=Path, default=Path(<span class="st">"out.csv"</span>))
+p.add_argument(<span class="st">"-v"</span>,<span class="st">"--verbose"</span>, action=<span class="st">"store_true"</span>)
+p.add_argument(<span class="st">"--format"</span>, choices=[<span class="st">"csv"</span>,<span class="st">"json"</span>], default=<span class="st">"csv"</span>)
+grp = p.add_mutually_exclusive_group()
+grp.add_argument(<span class="st">"--overwrite"</span>, action=<span class="st">"store_true"</span>)
+grp.add_argument(<span class="st">"--append"</span>,    action=<span class="st">"store_true"</span>)
+args = p.parse_args()
+<span class="kw">if</span> args.verbose: <span class="bi">print</span>(<span class="st">f"Input: {args.input}"</span>)</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-unittest">
+    <div class="section-header"><div class="section-title">unittest</div><span class="ver-badge">TestCase · setUp · assertRaises · mock.patch</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">unittest &amp; doctest</div><pre><span class="kw">import</span> unittest
+<span class="kw">from</span> unittest.mock <span class="kw">import</span> patch, MagicMock
+<span class="kw">class</span> <span class="fn">CalcTests</span>(unittest.TestCase):
+    <span class="kw">def</span> <span class="fn">setUp</span>(self): self.calc = Calculator()
+    <span class="kw">def</span> <span class="fn">test_add</span>(self):
+        self.assertEqual(self.calc.add(<span class="bi">2</span>,<span class="bi">3</span>), <span class="bi">5</span>)
+    <span class="kw">def</span> <span class="fn">test_zero_div</span>(self):
+        <span class="kw">with</span> self.assertRaises(ZeroDivisionError):
+            self.calc.divide(<span class="bi">10</span>, <span class="bi">0</span>)
+    <span class="kw">def</span> <span class="fn">test_mock</span>(self):
+        <span class="kw">with</span> patch(<span class="st">"mymod.requests.get"</span>) <span class="kw">as</span> mock:
+            mock.return_value = MagicMock(json=<span class="kw">lambda</span>:{<span class="st">"r"</span>:<span class="bi">42</span>})
+            self.assertEqual(self.calc.remote(), <span class="bi">42</span>)</pre></div>
+    </div>
+  </section>
+
+</div><!-- /page-stdlib -->
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 4 — DATA SCIENCE
+═══════════════════════════════════════ -->
+<div class="page-panel" id="page-datascience">
+  <div class="part-heading"><span>04</span> Data Science &amp; Third-party</div>
+  <div class="part-sub">NumPy, Pandas, Matplotlib, requests, Pydantic v2, pytest, SQLAlchemy 2.0</div>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">NumPy</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-np-arrays">
+    <div class="section-header"><div class="section-title">NumPy — Arrays</div><span class="ver-badge">ndarray · dtype · indexing · views vs copies</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Array creation &amp; indexing</div><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+a   = np.arange(<span class="bi">12</span>).reshape(<span class="bi">3</span>,<span class="bi">4</span>)
+z   = np.zeros((<span class="bi">3</span>,<span class="bi">4</span>), dtype=np.float32)
+rng = np.random.default_rng(<span class="bi">42</span>)
+r   = rng.standard_normal((<span class="bi">3</span>,<span class="bi">3</span>))
+<span class="cm"># Slices are VIEWS</span>
+view = a[<span class="bi">1</span>:,<span class="bi">2</span>:]          <span class="cm"># shares memory</span>
+view[<span class="bi">0</span>,<span class="bi">0</span>] = <span class="bi">99</span>
+<span class="bi">print</span>(a[<span class="bi">1</span>,<span class="bi">2</span>])             <span class="cm"># 99 (modified!)</span>
+copy = a[<span class="bi">1</span>:,<span class="bi">2</span>:].copy()    <span class="cm"># explicit copy</span>
+<span class="cm"># Boolean indexing (always copy)</span>
+<span class="bi">print</span>(a[a &gt; <span class="bi">6</span>])            <span class="cm"># elements > 6</span>
+a[a &lt; <span class="bi">0</span>] = <span class="bi">0</span>              <span class="cm"># in-place mask</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-np-ops">
+    <div class="section-header"><div class="section-title">NumPy — Operations</div><span class="ver-badge">broadcasting · ufuncs · @ matmul · linalg</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Vectorised ops &amp; broadcasting</div><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+a = np.array([<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>,<span class="bi">4</span>,<span class="bi">5</span>])
+<span class="bi">print</span>(a * <span class="bi">2</span> + <span class="bi">1</span>)           <span class="cm"># [3,5,7,9,11]</span>
+<span class="cm"># Broadcasting (3,1) + (1,3) -> (3,3)</span>
+col = np.array([[<span class="bi">10</span>],[<span class="bi">20</span>],[<span class="bi">30</span>]])
+row = np.array([[<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>]])
+<span class="bi">print</span>(col + row)            <span class="cm"># 3x3 matrix</span>
+<span class="cm"># Aggregation by axis</span>
+m = np.array([[<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>],[<span class="bi">4</span>,<span class="bi">5</span>,<span class="bi">6</span>]])
+<span class="bi">print</span>(np.sum(m, axis=<span class="bi">0</span>))   <span class="cm"># [5,7,9] col sums</span>
+<span class="bi">print</span>(np.sum(m, axis=<span class="bi">1</span>))   <span class="cm"># [6,15] row sums</span>
+A = np.random.rand(<span class="bi">3</span>,<span class="bi">4</span>)
+B = np.random.rand(<span class="bi">4</span>,<span class="bi">5</span>)
+<span class="bi">print</span>((A @ B).shape)       <span class="cm"># (3,5)</span></pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Pandas</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-pd-basics">
+    <div class="section-header"><div class="section-title">Pandas — Series &amp; DataFrame</div><span class="ver-badge">read_csv · info · describe · loc/iloc</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Creation &amp; inspection</div><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+df = pd.DataFrame({
+    <span class="st">"name"</span>:  [<span class="st">"Alice"</span>,<span class="st">"Bob"</span>,<span class="st">"Carol"</span>],
+    <span class="st">"dept"</span>:  [<span class="st">"Eng"</span>,<span class="st">"Mkt"</span>,<span class="st">"Eng"</span>],
+    <span class="st">"salary"</span>:[<span class="bi">95000</span>,<span class="bi">75000</span>,<span class="bi">88000</span>],
+})
+<span class="bi">print</span>(df.shape, df.dtypes)
+<span class="bi">print</span>(df.describe())
+<span class="cm"># Selection</span>
+<span class="bi">print</span>(df[<span class="st">"name"</span>])                    <span class="cm"># Series</span>
+<span class="bi">print</span>(df[[<span class="st">"name"</span>,<span class="st">"salary"</span>]])         <span class="cm"># DataFrame</span>
+<span class="bi">print</span>(df[df[<span class="st">"salary"</span>] &gt; <span class="bi">80000</span>])     <span class="cm"># filter</span>
+<span class="bi">print</span>(df.loc[<span class="bi">0</span>, <span class="st">"name"</span>])             <span class="cm"># label</span>
+<span class="bi">print</span>(df.iloc[<span class="bi">0</span>, <span class="bi">1</span>])                 <span class="cm"># position</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-pd-ops">
+    <div class="section-header"><div class="section-title">Pandas — Transform &amp; Clean</div><span class="ver-badge">assign · query · fillna · dropna · str accessor</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Transform &amp; clean</div><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+df = pd.DataFrame({
+    <span class="st">"name"</span>:  [<span class="st">"Alice"</span>,<span class="st">"Bob"</span>,<span class="kw">None</span>],
+    <span class="st">"salary"</span>:[<span class="bi">95000</span>,<span class="kw">None</span>,<span class="bi">65000</span>],
+    <span class="st">"dept"</span>:  [<span class="st">"Eng"</span>,<span class="st">"Mkt"</span>,<span class="st">"Eng"</span>],
+})
+result = (df
+    .dropna(subset=[<span class="st">"name"</span>])
+    .fillna({<span class="st">"salary"</span>: df[<span class="st">"salary"</span>].median()})
+    .assign(
+        name     = <span class="kw">lambda</span> d: d[<span class="st">"name"</span>].str.title(),
+        salary_k = <span class="kw">lambda</span> d: d[<span class="st">"salary"</span>] / <span class="bi">1000</span>,
+    )
+    .query(<span class="st">"dept == 'Eng'"</span>)
+    .sort_values(<span class="st">"salary"</span>, ascending=<span class="kw">False</span>)
+    .reset_index(drop=<span class="kw">True</span>)
+)</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-pd-groupby">
+    <div class="section-header"><div class="section-title">Pandas — GroupBy &amp; Merge</div><span class="ver-badge">groupby · agg · transform · merge · concat</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">GroupBy &amp; merge</div><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="cm"># Named aggregations</span>
+result = df.groupby(<span class="st">"dept"</span>).agg(
+    avg = pd.NamedAgg(<span class="st">"salary"</span>,<span class="st">"mean"</span>),
+    top = pd.NamedAgg(<span class="st">"salary"</span>,<span class="st">"max"</span>),
+    n   = pd.NamedAgg(<span class="st">"salary"</span>,<span class="st">"count"</span>))
+<span class="cm"># transform — keeps original index</span>
+df[<span class="st">"dept_avg"</span>] = df.groupby(<span class="st">"dept"</span>)[<span class="st">"salary"</span>].transform(<span class="st">"mean"</span>)
+<span class="cm"># Merge (SQL JOIN)</span>
+merged = pd.merge(employees, departments,
+                  on=<span class="st">"dept_id"</span>, how=<span class="st">"left"</span>,
+                  validate=<span class="st">"m:1"</span>)  <span class="cm"># catch cardinality</span>
+<span class="cm"># Concat (UNION ALL)</span>
+all_q = pd.concat([q1, q2], ignore_index=<span class="kw">True</span>)</pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Visualisation</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-matplotlib">
+    <div class="section-header"><div class="section-title">Matplotlib</div><span class="ver-badge">OO API · subplots · twinx · savefig</span></div>
+    <div class="card-grid card-grid-wide">
+      <div class="card"><div class="card-label">Plotting basics &amp; subplots</div><pre><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+fig, axes = plt.subplots(<span class="bi">1</span>,<span class="bi">2</span>, figsize=(<span class="bi">12</span>,<span class="bi">5</span>))
+fig.suptitle(<span class="st">"Analysis"</span>, fontsize=<span class="bi">14</span>)
+x = np.arange(<span class="bi">12</span>); y = np.random.randint(<span class="bi">50</span>,<span class="bi">200</span>,<span class="bi">12</span>)
+axes[<span class="bi">0</span>].plot(x, y, marker=<span class="st">"o"</span>, lw=<span class="bi">2</span>)
+axes[<span class="bi">0</span>].fill_between(x, y, alpha=<span class="bi">0.15</span>)
+axes[<span class="bi">0</span>].set_title(<span class="st">"Monthly"</span>)
+bars = axes[<span class="bi">1</span>].bar([<span class="st">"Eng"</span>,<span class="st">"Mkt"</span>,<span class="st">"HR"</span>],[<span class="bi">120</span>,<span class="bi">80</span>,<span class="bi">45</span>])
+axes[<span class="bi">1</span>].bar_label(bars, fmt=<span class="st">"%d"</span>)
+plt.tight_layout()
+fig.savefig(<span class="st">"plot.png"</span>, dpi=<span class="bi">150</span>, bbox_inches=<span class="st">"tight"</span>)</pre></div>
+    </div>
+  </section>
+
+  <div class="part-divider"><div class="part-divider-line"></div><div class="part-divider-label">Third-party</div><div class="part-divider-line"></div></div>
+
+  <section class="section" id="s-requests">
+    <div class="section-header"><div class="section-title">requests</div><span class="ver-badge">Session · raise_for_status · Retry · stream</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">HTTP client</div><pre><span class="kw">import</span> requests
+<span class="kw">from</span> requests.adapters <span class="kw">import</span> HTTPAdapter
+<span class="kw">from</span> urllib3.util.retry <span class="kw">import</span> Retry
+s = requests.Session()
+s.mount(<span class="st">"https://"</span>, HTTPAdapter(max_retries=Retry(
+    total=<span class="bi">3</span>, backoff_factor=<span class="bi">0.3</span>,
+    status_forcelist=[<span class="bi">429</span>,<span class="bi">500</span>,<span class="bi">502</span>,<span class="bi">503</span>,<span class="bi">504</span>])))
+s.headers.update({<span class="st">"Authorization"</span>:<span class="st">"Bearer TOKEN"</span>})
+<span class="cm"># Always set timeout!</span>
+r = s.get(<span class="st">"https://api.example.com/users"</span>,
+          params={<span class="st">"page"</span>:<span class="bi">1</span>}, timeout=(<span class="bi">5</span>,<span class="bi">30</span>))
+r.raise_for_status()        <span class="cm"># 4xx/5xx → HTTPError</span>
+users = r.json()
+r2 = s.post(<span class="st">"https://api.example.com/users"</span>,
+            json={<span class="st">"name"</span>:<span class="st">"Alice"</span>}, timeout=(<span class="bi">5</span>,<span class="bi">30</span>))</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-pydantic">
+    <div class="section-header"><div class="section-title">Pydantic v2</div><span class="ver-badge">BaseModel · field_validator · computed_field · model_dump</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Models &amp; validation</div><pre><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field, field_validator, computed_field, ConfigDict
+<span class="kw">from</span> typing <span class="kw">import</span> Annotated
+PositiveInt = Annotated[<span class="bi">int</span>, Field(gt=<span class="bi">0</span>)]
+<span class="kw">class</span> <span class="fn">User</span>(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=<span class="kw">True</span>)
+    id:    PositiveInt
+    name:  <span class="bi">str</span> = Field(min_length=<span class="bi">2</span>, max_length=<span class="bi">100</span>)
+    email: <span class="bi">str</span> = Field(pattern=<span class="st">r"^[\w.+-]+@[\w-]+\.[\w.]+$"</span>)
+    age:   <span class="bi">int</span> = Field(ge=<span class="bi">0</span>, le=<span class="bi">150</span>)
+    <span class="de">@field_validator</span>(<span class="st">"name"</span>)
+    <span class="de">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">titlecase</span>(cls, v): <span class="kw">return</span> v.title()
+    <span class="de">@computed_field</span>
+    <span class="de">@property</span>
+    <span class="kw">def</span> <span class="fn">is_adult</span>(self) -&gt; <span class="bi">bool</span>: <span class="kw">return</span> self.age &gt;= <span class="bi">18</span></pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-pytest">
+    <div class="section-header"><div class="section-title">pytest</div><span class="ver-badge">fixture · parametrize · approx · monkeypatch · tmp_path</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Fixtures &amp; testing patterns</div><pre><span class="kw">import</span> pytest
+<span class="de">@pytest.fixture</span>(scope=<span class="st">"session"</span>)
+<span class="kw">def</span> <span class="fn">app</span>():
+    app = create_app(testing=<span class="kw">True</span>)
+    <span class="kw">with</span> app.app_context():
+        <span class="kw">yield</span> app
+<span class="de">@pytest.mark.parametrize</span>(<span class="st">"a,b,expected"</span>,[
+    (<span class="bi">1</span>,<span class="bi">2</span>,<span class="bi">3</span>),(<span class="bi">0</span>,<span class="bi">0</span>,<span class="bi">0</span>),(-<span class="bi">1</span>,<span class="bi">1</span>,<span class="bi">0</span>)])
+<span class="kw">def</span> <span class="fn">test_add</span>(a,b,expected): <span class="kw">assert</span> add(a,b)==expected
+<span class="kw">def</span> <span class="fn">test_zero_div</span>():
+    <span class="kw">with</span> pytest.raises(ZeroDivisionError): divide(<span class="bi">10</span>,<span class="bi">0</span>)
+<span class="kw">def</span> <span class="fn">test_float</span>():
+    <span class="kw">assert</span> <span class="bi">0.1</span>+<span class="bi">0.2</span> == pytest.approx(<span class="bi">0.3</span>)
+<span class="kw">def</span> <span class="fn">test_env</span>(monkeypatch, tmp_path):
+    monkeypatch.setenv(<span class="st">"KEY"</span>,<span class="st">"test"</span>)</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-sqlalchemy">
+    <div class="section-header"><div class="section-title">SQLAlchemy 2.0</div><span class="ver-badge">DeclarativeBase · Mapped · Session · selectinload</span></div>
+    <div class="card-grid card-grid-wide">
+      <div class="card"><div class="card-label">Core &amp; ORM</div><pre><span class="kw">from</span> sqlalchemy <span class="kw">import</span> create_engine, select, String, ForeignKey
+<span class="kw">from</span> sqlalchemy.orm <span class="kw">import</span> DeclarativeBase, Mapped, mapped_column, relationship, Session, selectinload
+<span class="kw">from</span> typing <span class="kw">import</span> List
+<span class="kw">class</span> <span class="fn">Base</span>(DeclarativeBase): <span class="kw">pass</span>
+<span class="kw">class</span> <span class="fn">Dept</span>(Base):
+    __tablename__ = <span class="st">"depts"</span>
+    id:   Mapped[<span class="bi">int</span>]      = mapped_column(primary_key=<span class="kw">True</span>)
+    name: Mapped[<span class="bi">str</span>]      = mapped_column(String(<span class="bi">100</span>))
+    emps: Mapped[List[<span class="st">"Emp"</span>]] = relationship(back_populates=<span class="st">"dept"</span>)
+<span class="kw">class</span> <span class="fn">Emp</span>(Base):
+    __tablename__ = <span class="st">"emps"</span>
+    id:      Mapped[<span class="bi">int</span>] = mapped_column(primary_key=<span class="kw">True</span>)
+    name:    Mapped[<span class="bi">str</span>] = mapped_column(String(<span class="bi">100</span>))
+    dept_id: Mapped[<span class="bi">int</span>] = mapped_column(ForeignKey(<span class="st">"depts.id"</span>))
+    dept:    Mapped[<span class="st">"Dept"</span>] = relationship(back_populates=<span class="st">"emps"</span>)
+engine = create_engine(<span class="st">"sqlite:///app.db"</span>)
+Base.metadata.create_all(engine)
+<span class="kw">with</span> Session(engine) <span class="kw">as</span> s:
+    eng = Dept(name=<span class="st">"Engineering"</span>); s.add(eng); s.flush()
+    s.add(Emp(name=<span class="st">"Alice"</span>, dept_id=eng.id)); s.commit()
+    stmt = select(Dept).options(selectinload(Dept.emps))
+    dept = s.execute(stmt).scalar_one()
+    <span class="kw">for</span> e <span class="kw">in</span> dept.emps: <span class="bi">print</span>(e.name)</pre></div>
+    </div>
+  </section>
+
+</div><!-- /page-datascience -->
+
+</main>
+
+<footer id="page-footer">
+  <kbd>[</kbd> toggle sidebar &nbsp;·&nbsp; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> switch page &nbsp;·&nbsp; <kbd>Esc</kbd> close panel &nbsp;·&nbsp;
+  Sources: <a href="https://docs.python.org/3/" target="_blank" rel="noopener" style="color:var(--accent2)">docs.python.org</a> &nbsp;·&nbsp;
+  <a href="https://numpy.org/doc/stable/" target="_blank" rel="noopener" style="color:var(--accent2)">NumPy</a> &nbsp;·&nbsp;
+  <a href="https://pandas.pydata.org/docs/" target="_blank" rel="noopener" style="color:var(--accent2)">Pandas</a> &nbsp;·&nbsp;
+  <a href="https://matplotlib.org/stable/" target="_blank" rel="noopener" style="color:var(--accent2)">Matplotlib</a>
+</footer>
+</div><!-- /main-wrapper -->
+
+<!-- Detail modal -->
+<div id="detail-overlay"></div>
+<div id="detail-panel">
+  <div id="detail-header">
+    <div>
+      <div id="detail-section-label">SECTION</div>
+      <div id="detail-card-title">Card Title</div>
+    </div>
+    <button id="detail-close" onclick="closePanel()">✕</button>
+  </div>
+  <div id="detail-inner">
+    <div id="detail-left"></div>
+    <div id="detail-right"></div>
+  </div>
+</div>
+
+<script src="data/cards.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/panel.js"></script>
+</body>
+</html>
