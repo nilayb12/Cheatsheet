@@ -141,12 +141,12 @@ main{padding:1.6rem 2rem}
   main{padding:.85rem .75rem}
 
   /* Slim header: logo + title + hamburger only */
-  #chrome>header{padding:.5rem .9rem;gap:.6rem;flex-wrap:nowrap;height:3.2rem;overflow:hidden}
+  #chrome>header{padding:.5rem .9rem;gap:.6rem;flex-wrap:nowrap;height:3.2rem}
   .hdr-sub{display:none}
   /* Logo: fixed size, never shrinks */
   .hdr-logo{flex-shrink:0;width:28px;height:28px}
   /* Title wrapper: takes remaining space, truncates if needed */
-  #chrome>header>div:nth-child(2){flex:1;min-width:0;overflow:hidden}
+  #chrome>header>div:nth-child(2){flex:1;min-width:0}
   .hdr-title{font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   /* hdr-right: auto margin pushes it right, never shrinks */
