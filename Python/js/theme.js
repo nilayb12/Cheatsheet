@@ -31,6 +31,9 @@ function applyTheme(theme, suppressAnim){
     if(suppressAnim) document.body.classList.add('preload');
     // checked=true → dark (night sky), checked=false → light (blue sky)
     cb.checked = (theme === DARK);
+    // Keep drawer toggle in sync
+    var mobCb = document.getElementById('theme-input-mob');
+    if(mobCb) mobCb.checked = (theme === DARK);
     if(suppressAnim){
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){

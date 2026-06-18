@@ -51,6 +51,7 @@
       <span class="hdr-badge">Python 3.12+</span>
       <span class="hdr-badge"><kbd>[</kbd> sidebar</span>
       <span class="hdr-badge"><kbd>1–4</kbd> pages</span>
+      <button id="mob-drawer-btn" aria-label="Open menu" onclick="mobDrawerOpen()">☰</button>
       <label class="switch" title="Toggle light/dark mode" aria-label="Toggle theme">
         <input id="theme-input" type="checkbox" />
         <div class="slider round">
@@ -194,6 +195,58 @@
     </nav><!-- /sidebar -->
   </div>
 
+
+
+  <!-- ── Mobile right drawer ── -->
+  <div id="mob-overlay" onclick="mobDrawerClose()"></div>
+  <div id="mob-drawer">
+    <div id="mob-drawer-hdr">
+      <span id="mob-drawer-title">Navigation</span>
+      <button id="mob-drawer-close" onclick="mobDrawerClose()" aria-label="Close menu">✕</button>
+    </div>
+    <div id="mob-drawer-body">
+      <div class="mob-drawer-section-label">Pages</div>
+      <button class="mob-page-btn active" data-page="core"        onclick="switchPage('core');mobDrawerClose()">Core Language</button>
+      <button class="mob-page-btn"        data-page="advanced"    onclick="switchPage('advanced');mobDrawerClose()">Advanced Python</button>
+      <button class="mob-page-btn"        data-page="stdlib"      onclick="switchPage('stdlib');mobDrawerClose()">Stdlib</button>
+      <button class="mob-page-btn"        data-page="datascience" onclick="switchPage('datascience');mobDrawerClose()">Data Science</button>
+      <div class="mob-drawer-divider"></div>
+      <div class="mob-drawer-section-label">Theme</div>
+      <div id="mob-theme-row">
+        <span id="mob-theme-label">Dark mode</span>
+        <label class="switch" aria-label="Toggle theme">
+          <input id="theme-input-mob" type="checkbox" />
+          <div class="slider round">
+            <div class="sun-moon">
+              <svg id="mob-moon-dot-1" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-moon-dot-2" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-moon-dot-3" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-light-ray-1" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-light-ray-2" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-light-ray-3" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-cloud-1" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-cloud-2" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-cloud-3" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-cloud-4" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-cloud-5" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+              <svg id="mob-cloud-6" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"/></svg>
+            </div>
+            <div class="stars">
+              <svg id="mob-star-1" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"/></svg>
+              <svg id="mob-star-2" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"/></svg>
+              <svg id="mob-star-3" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"/></svg>
+              <svg id="mob-star-4" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"/></svg>
+            </div>
+          </div>
+        </label>
+      </div>
+      <div class="mob-drawer-divider"></div>
+      <div class="mob-drawer-section-label">Shortcuts</div>
+      <div class="mob-shortcut-row"><kbd>[</kbd><span>toggle sidebar</span></div>
+      <div class="mob-shortcut-row"><kbd>1–4</kbd><span>switch page</span></div>
+      <div class="mob-shortcut-row"><kbd>Esc</kbd><span>close panel</span></div>
+    </div>
+  </div>
 
 </div><!-- /chrome -->
 
@@ -1586,5 +1639,55 @@ Base.metadata.create_all(engine)
 <script src="js/panel.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/search.js"></script>
+  <script>
+  /* ── Mobile drawer ── */
+  (function(){
+    function mobDrawerOpen(){
+      document.getElementById('mob-drawer').classList.add('open');
+      document.getElementById('mob-overlay').classList.add('open');
+      document.body.style.overflow='hidden';
+      syncMobPageBtns();
+      syncMobTheme();
+    }
+    function mobDrawerClose(){
+      document.getElementById('mob-drawer').classList.remove('open');
+      document.getElementById('mob-overlay').classList.remove('open');
+      document.body.style.overflow='';
+    }
+    function syncMobPageBtns(){
+      var active='core';
+      try{active=sessionStorage.getItem('py-page')||'core';}catch(e){}
+      document.querySelectorAll('.mob-page-btn').forEach(function(btn){
+        btn.classList.toggle('active', btn.dataset.page===active);
+      });
+    }
+    function syncMobTheme(){
+      var desk=document.getElementById('theme-input');
+      var mob=document.getElementById('theme-input-mob');
+      if(desk&&mob) mob.checked=desk.checked;
+      var lbl=document.getElementById('mob-theme-label');
+      if(lbl) lbl.textContent=document.body.classList.contains('light')?'Light mode':'Dark mode';
+    }
+    // Mobile toggle → drive theme via desktop toggle's change event
+    document.addEventListener('DOMContentLoaded',function(){
+      var mob=document.getElementById('theme-input-mob');
+      var desk=document.getElementById('theme-input');
+      if(mob&&desk){
+        mob.addEventListener('change',function(){
+          desk.checked=mob.checked;
+          desk.dispatchEvent(new Event('change'));
+          var lbl=document.getElementById('mob-theme-label');
+          if(lbl) lbl.textContent=mob.checked?'Dark mode':'Light mode';
+        });
+      }
+      // Close drawer on Escape
+      document.addEventListener('keydown',function(e){
+        if(e.key==='Escape') mobDrawerClose();
+      });
+    });
+    window.mobDrawerOpen=mobDrawerOpen;
+    window.mobDrawerClose=mobDrawerClose;
+  }());
+  </script>
 </body>
 </html>
