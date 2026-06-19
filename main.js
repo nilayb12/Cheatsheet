@@ -123,9 +123,11 @@ function renderCard(p) {
        aria-label="Open live site: ${p.name}">
       <div class="card-top">
         <span class="card-icon" aria-hidden="true">${p.icon || '📁'}</span>
+      </div>
+      <div class="card-name-row">
+        <span class="card-name">${p.name}</span>
         <span class="badge ${STATUS_CLASS[status] || 'badge-live'}">${STATUS_LABEL[status] || status}</span>
       </div>
-      <div class="card-name">${p.name}</div>
       <div class="card-path">./${p.path}/</div>
       ${p.desc ? `<div class="card-desc">${p.desc}</div>` : ''}
       ${tags}
