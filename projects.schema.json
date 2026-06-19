@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "projects.schema.json",
+  "title": "Projects Hub — projects.json schema",
+  "description": "Defines the shape of each project entry in projects.json. Editors that support JSON Schema (VS Code, JetBrains, etc.) will validate and autocomplete fields automatically when the $schema reference is present in projects.json.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["name", "path"],
+    "additionalProperties": false,
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Display name shown on the card."
+      },
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[a-zA-Z0-9_-]+$",
+        "description": "Subfolder name relative to the repo root. Must contain only letters, numbers, hyphens, and underscores — no slashes or spaces."
+      },
+      "desc": {
+        "type": "string",
+        "description": "Short description shown below the project name. Optional."
+      },
+      "icon": {
+        "type": "string",
+        "description": "A single emoji used as the card icon. Optional — defaults to 📁."
+      },
+      "status": {
+        "type": "string",
+        "enum": ["live", "wip", "archived"],
+        "description": "Current state of the project. Shown as a badge on the card. Defaults to 'live' if omitted."
+      },
+      "tags": {
+        "type": "array",
+        "description": "Optional list of category labels shown as chips on the card.",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uniqueItems": true
+      }
+    }
+  }
+}

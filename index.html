@@ -1,357 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects Hub</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap"
-        rel="stylesheet">
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects Hub</title>
 
-        :root {
-            --bg: #0e0e0f;
-            --surface: #161618;
-            --surface-hover: #1e1e21;
-            --border: rgba(255, 255, 255, 0.07);
-            --border-hover: rgba(255, 255, 255, 0.18);
-            --text: #f0ede8;
-            --muted: #6b6b72;
-            --accent: #c8f060;
-            --accent-dim: rgba(200, 240, 96, 0.08);
-            --accent-dim-hover: rgba(200, 240, 96, 0.14);
-            --font-serif: 'Instrument Serif', Georgia, serif;
-            --font-mono: 'DM Mono', 'Courier New', monospace;
-        }
+<!-- ── SEO & Open Graph ── -->
+<!-- Update these meta tags to match your repo -->
+<meta name="description" content="A collection of projects deployed from a single GitHub repository.">
+<meta property="og:title"       content="Projects Hub">
+<meta property="og:description" content="A collection of projects deployed from a single GitHub repository.">
+<meta property="og:type"        content="website">
+<!-- <meta property="og:url"    content="https://your-username.github.io/your-repo/"> -->
+<!-- <meta property="og:image" content="https://your-username.github.io/your-repo/og-image.png"> -->
 
-        html {
-            font-size: 16px;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-mono);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ── Header ── */
-        header {
-            padding: 4rem 2rem 2rem;
-            max-width: 860px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .eyebrow {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .eyebrow::before {
-            content: '';
-            display: inline-block;
-            width: 18px;
-            height: 1px;
-            background: var(--accent);
-        }
-
-        h1 {
-            font-family: var(--font-serif);
-            font-size: clamp(2.4rem, 6vw, 3.8rem);
-            font-weight: 400;
-            font-style: italic;
-            line-height: 1.1;
-            letter-spacing: -0.01em;
-            color: var(--text);
-            margin-bottom: 0.75rem;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--muted);
-            line-height: 1.6;
-            max-width: 480px;
-        }
-
-        /* ── Divider ── */
-        .divider {
-            max-width: 860px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 2rem;
-        }
-
-        .divider hr {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 1.5rem 0 2.5rem;
-        }
-
-        /* ── Grid ── */
-        .grid-wrap {
-            max-width: 860px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 2rem;
-            flex: 1;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 1px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        /* ── Cards ── */
-        .card {
-            background: var(--surface);
-            padding: 1.5rem;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-            transition: background 0.15s ease;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            background: var(--surface-hover);
-        }
-
-        .card:hover .arrow {
-            transform: translate(3px, -3px);
-            opacity: 1;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-
-        .card-icon {
-            font-size: 18px;
-            line-height: 1;
-            flex-shrink: 0;
-        }
-
-        .arrow {
-            font-size: 14px;
-            color: var(--accent);
-            opacity: 0.4;
-            transition: transform 0.18s ease, opacity 0.18s ease;
-            flex-shrink: 0;
-        }
-
-        .card-name {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text);
-            letter-spacing: 0.02em;
-        }
-
-        .card-path {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--accent);
-            opacity: 0.7;
-        }
-
-        .card-desc {
-            font-size: 12px;
-            color: var(--muted);
-            line-height: 1.5;
-            margin-top: 0.2rem;
-        }
-
-        /* ── Add-project card ── */
-        .card-add {
-            background: transparent;
-            border: none;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--muted);
-            cursor: default;
-            font-style: italic;
-        }
-
-        /* ── Footer ── */
-        footer {
-            max-width: 860px;
-            margin: 3rem auto 2rem;
-            width: 100%;
-            padding: 0 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 11px;
-            color: var(--muted);
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-hint {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .footer-hint code {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 1px 6px;
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--accent);
-        }
-
-        @media (max-width: 540px) {
-            header {
-                padding: 2.5rem 1.25rem 1.5rem;
-            }
-
-            .grid-wrap {
-                padding: 0 1.25rem;
-            }
-
-            .divider {
-                padding: 0 1.25rem;
-            }
-
-            footer {
-                padding: 0 1.25rem;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
-
 <body>
 
-    <header>
-        <p class="eyebrow">github.com/nilayb12/Cheatsheet</p>
-        <h1>Cheatsheets</h1>
-        <p class="subtitle">A collection of Cheatsheets deployed from a single repository. Click any card to open the
-            live site.</p>
-    </header>
+<a class="skip-link" href="#project-grid">Skip to projects</a>
 
-    <div class="divider">
-        <hr>
+<header>
+  <!-- ↓ Update this to your actual repo URL -->
+  <p class="eyebrow">github.com/your-username/your-repo</p>
+  <h1>Projects</h1>
+  <p class="subtitle">A collection of projects deployed from a single repository.</p>
+</header>
+
+<div class="divider"><hr></div>
+
+<div class="grid-wrap">
+
+  <!-- ── Search & filter controls ── -->
+  <div class="controls" role="search">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="search"
+        id="search-input"
+        class="search-input"
+        placeholder="Search projects…"
+        aria-label="Search projects by name or description"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="search-clear" id="search-clear" aria-label="Clear search" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
+    <div class="tag-filters" id="tag-filters" role="group" aria-label="Filter by tag"></div>
+  </div>
 
-    <div class="grid-wrap">
-        <div class="grid" id="project-grid">
-            <!-- Cards are injected here by JS -->
-        </div>
-    </div>
+  <div class="grid" id="project-grid" role="list" aria-label="Projects">
+    <p class="state-msg" aria-live="polite">Loading projects…</p>
+  </div>
 
-    <footer>
-        <span>Hosted on GitHub Pages</span>
-        <span class="footer-hint">Edit <code>PROJECTS</code> in index.html to add entries</span>
-    </footer>
+  <p class="no-results" id="no-results" hidden>
+    No projects match <span id="no-results-term"></span>.
+  </p>
 
-    <script>
-        // ─────────────────────────────────────────────
-        //  CONFIGURE YOUR PROJECTS HERE
-        //  Each entry needs:
-        //    name    — display title
-        //    path    — subfolder name (relative to this file)
-        //    desc    — short description (optional)
-        //    icon    — an emoji icon (optional)
-        // ─────────────────────────────────────────────
-        const PROJECTS = [
-            {
-                name: "PySpark + Databricks",
-                path: "PySpark_Databricks",
-                desc: "PySpark + Databricks Cheatsheet",
-                icon: "🌐"
-            },
-            {
-                name: "Python",
-                path: "Python",
-                desc: "Python Cheatsheet",
-                icon: '<img src="https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/files/python-logo-only.svg" width="25" height="30" alt="Python logo" />'
-            },
-            // {
-            //     name: "Project Three",
-            //     path: "project-three",
-            //     desc: "Yet another site deployed from the same repo.",
-            //     icon: "🎨"
-            // },
-            // ── Add more entries below this line ──
-            // {
-            //   name: "My New Project",
-            //   path: "my-new-project",
-            //   desc: "Description here.",
-            //   icon: "✨"
-            // },
-        ];
-        // ─────────────────────────────────────────────
+</div>
 
-        const grid = document.getElementById("project-grid");
+<footer>
+  <span>Hosted on GitHub Pages</span>
+  <span>Edit <code>projects.json</code> to add entries</span>
+</footer>
 
-        PROJECTS.forEach(p => {
-            const a = document.createElement("a");
-            a.className = "card";
-            a.href = p.path + "/";
-            a.title = p.name;
-            a.innerHTML = `
-      <div class="card-header">
-        <span class="card-icon" aria-hidden="true">${p.icon || "📁"}</span>
-        <span class="arrow" aria-hidden="true">↗</span>
-      </div>
-      <div class="card-name">${p.name}</div>
-      <div class="card-path">./${p.path}/</div>
-      ${p.desc ? `<div class="card-desc">${p.desc}</div>` : ""}
-    `;
-            grid.appendChild(a);
-        });
-
-        // Trailing "add more" prompt
-        if (PROJECTS.length % 2 === 0 || PROJECTS.length < 4) {
-            const placeholder = document.createElement("div");
-            placeholder.className = "card-add";
-            placeholder.innerHTML = `<span>+ add more projects</span>`;
-            grid.appendChild(placeholder);
-        }
-    </script>
-
+<script src="main.js"></script>
 </body>
-
 </html>

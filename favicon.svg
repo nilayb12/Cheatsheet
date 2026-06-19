@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="8" fill="#0e0e0f"/>
+  <!-- Document lines -->
+  <rect x="7" y="8"  width="11" height="2" rx="1" fill="#c8f060"/>
+  <rect x="7" y="13" width="18" height="2" rx="1" fill="#c8f060" opacity=".5"/>
+  <rect x="7" y="18" width="14" height="2" rx="1" fill="#c8f060" opacity=".3"/>
+  <!-- Two small cards -->
+  <rect x="7"  y="23" width="8" height="6" rx="2" fill="#c8f060" opacity=".15"/>
+  <rect x="17" y="23" width="8" height="6" rx="2" fill="#c8f060" opacity=".15"/>
+  <!-- Plus badge -->
+  <circle cx="26" cy="10" r="6" fill="#c8f060"/>
+  <line x1="26" y1="7"  x2="26" y2="13" stroke="#0e0e0f" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="23" y1="10" x2="29" y2="10" stroke="#0e0e0f" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

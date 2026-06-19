@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Page Not Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<!--
+  style.css href and back-link href are both set by JS below,
+  once we know the repo base path from window.location.
+-->
+<link rel="stylesheet" id="main-css" href="">
+<link rel="icon" id="favicon" href="">
+
+<style>
+  /* ── Fallback tokens — active immediately, before style.css loads ── */
+  :root {
+    --bg:         #0e0e0f;
+    --surface:    #161618;
+    --border:     rgba(255,255,255,0.07);
+    --text:       #f0ede8;
+    --muted:      #7a7a82;
+    --accent:     #c8f060;
+    --font-serif: 'Instrument Serif', Georgia, serif;
+    --font-mono:  'DM Mono', 'Courier New', monospace;
+  }
+
+  /* ── Page-specific styles ── */
+  .not-found {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 860px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 4rem 2rem;
+    gap: 1.25rem;
+  }
+
+  .not-found-code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .not-found-code::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .not-found h1 {
+    font-family: var(--font-serif);
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.1;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .not-found p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 420px;
+  }
+
+  .not-found-path {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    word-break: break-all;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: opacity 0.12s;
+  }
+  .back-link:hover { opacity: 0.75; }
+  .back-link svg {
+    width: 13px;
+    height: 13px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (max-width: 540px) {
+    .not-found { padding: 3rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="not-found">
+  <span class="not-found-code">404</span>
+  <h1>Page not found.</h1>
+  <p>This path doesn't exist in the repository. It may have been moved, renamed, or never deployed.</p>
+  <code class="not-found-path" id="bad-path"></code>
+  <a class="back-link" id="back-link" href="">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="12 19 5 12 12 5"/>
+    </svg>
+    Back to all projects
+  </a>
+</div>
+
+<script>
+  /**
+   * Derive the hub base path from window.location.
+   *
+   * GitHub Pages pattern:  https://user.github.io/repo-name/...
+   *   → base = /repo-name/
+   *
+   * Custom domain / local: https://example.com/...
+   *   → base = /
+   */
+  function getBasePath() {
+    const { hostname, pathname } = window.location;
+    const parts = hostname.split('.');
+    if (parts.length >= 3 && parts[1] === 'github' && parts[2] === 'io') {
+      const repo = pathname.split('/').filter(Boolean)[0];
+      if (repo) return '/' + repo + '/';
+    }
+    return '/';
+  }
+
+  const base = getBasePath();
+
+  // Point style.css and favicon at the correct root-relative path
+  document.getElementById('main-css').href = base + 'style.css';
+  document.getElementById('favicon').href  = base + 'favicon.svg';
+  document.getElementById('favicon').type  = 'image/svg+xml';
+
+  // Point back-link at the hub root
+  document.getElementById('back-link').href = base;
+
+  // Show the path the user tried to visit
+  document.getElementById('bad-path').textContent = window.location.pathname;
+</script>
+
+</body>
+</html>
