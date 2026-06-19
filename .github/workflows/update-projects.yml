@@ -1,0 +1,158 @@
+# ──────────────────────────────────────────────────────────────
+#  Auto-discover projects and keep projects.json in sync
+#
+#  Triggers:
+#    - Any push to main that adds/removes a subfolder index.html
+#    - Manual run via Actions → "Run workflow"
+#
+#  What it does:
+#    1. Scans every subfolder that contains an index.html
+#    2. Skips root files and hidden/dot folders
+#    3. For each new subfolder not already in projects.json,
+#       adds a placeholder entry (fill in name/desc/icon after)
+#    4. Removes entries whose folder no longer exists
+#    5. Validates the result against projects.schema.json
+#    6. Commits the updated projects.json back to the repo
+# ──────────────────────────────────────────────────────────────
+
+name: Sync projects.json
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/index.html'
+      - 'projects.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ajv for schema validation
+        run: npm install --save-dev ajv ajv-formats
+
+      - name: Discover subfolders and sync projects.json
+        run: |
+          node - << 'SCRIPT'
+          const fs   = require('fs');
+          const path = require('path');
+          const Ajv  = require('ajv');
+          const addFormats = require('ajv-formats');
+
+          const ROOT          = process.cwd();
+          const PROJECTS_FILE = path.join(ROOT, 'projects.json');
+          const SCHEMA_FILE   = path.join(ROOT, 'projects.schema.json');
+
+          // ── Load schema ──
+          if (!fs.existsSync(SCHEMA_FILE)) {
+            console.error('projects.schema.json not found — skipping schema validation.');
+            process.exit(1);
+          }
+          const schema = JSON.parse(fs.readFileSync(SCHEMA_FILE, 'utf8'));
+
+          // ── Load existing projects.json ──
+          let existing = { projects: [] };
+          if (fs.existsSync(PROJECTS_FILE)) {
+            try {
+              const raw = JSON.parse(fs.readFileSync(PROJECTS_FILE, 'utf8'));
+              // Support legacy array format
+              existing = Array.isArray(raw) ? { projects: raw } : raw;
+            } catch (e) {
+              console.error('Could not parse existing projects.json:', e.message);
+              existing = { projects: [] };
+            }
+          }
+
+          // ── Scan for subfolders with an index.html ──
+          const SKIP = new Set(['.git', '.github', 'node_modules']);
+          const discovered = fs.readdirSync(ROOT, { withFileTypes: true })
+            .filter(d =>
+              d.isDirectory() &&
+              !d.name.startsWith('.') &&
+              !SKIP.has(d.name) &&
+              fs.existsSync(path.join(ROOT, d.name, 'index.html'))
+            )
+            .map(d => d.name);
+
+          console.log('Discovered subfolders:', discovered);
+
+          // ── Merge: keep existing, add new, remove gone ──
+          const existingPaths = new Set(existing.projects.map(p => p.path));
+          const discoveredSet = new Set(discovered);
+
+          const kept = existing.projects.filter(p => discoveredSet.has(p.path));
+
+          const newEntries = discovered
+            .filter(folder => !existingPaths.has(folder))
+            .map(folder => ({
+              name:   folder.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+              path:   folder,
+              desc:   '',
+              icon:   '📁',
+              tags:   [],
+              status: 'live'
+            }));
+
+          if (newEntries.length) {
+            console.log('Adding new entries:', newEntries.map(e => e.path));
+          }
+
+          const updatedProjects = [...kept, ...newEntries];
+          const updated = {
+            $schema: './projects.schema.json',
+            projects: updatedProjects
+          };
+
+          // ── Validate against schema ──
+          const ajv = new Ajv({ allErrors: true });
+          addFormats(ajv);
+          const validate = ajv.compile(schema);
+          const valid = validate(updatedProjects);
+
+          if (!valid) {
+            console.error('Schema validation errors:');
+            validate.errors.forEach(e => console.error(' -', e.instancePath, e.message));
+            process.exit(1);
+          }
+          console.log('Schema validation passed.');
+
+          // ── Check for duplicate paths ──
+          const paths = updatedProjects.map(p => p.path);
+          const dupes = paths.filter((p, i) => paths.indexOf(p) !== i);
+          if (dupes.length) {
+            console.error('Duplicate paths found:', dupes);
+            process.exit(1);
+          }
+
+          // ── Write back only if something changed ──
+          const before = JSON.stringify(existing.projects);
+          const after  = JSON.stringify(updatedProjects);
+          if (before !== after) {
+            fs.writeFileSync(PROJECTS_FILE,
+              JSON.stringify(updated, null, 2) + '\n', 'utf8');
+            console.log('projects.json updated.');
+          } else {
+            console.log('No changes — projects.json is already up to date.');
+          }
+          SCRIPT
+
+      - name: Commit updated projects.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add projects.json
+          git diff --cached --quiet || git commit -m "chore: sync projects.json [skip ci]"
+          git push
