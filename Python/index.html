@@ -98,6 +98,7 @@
             <div class="nav-section">Primitives</div>
             <a class="nav-link" href="#s-types"         onclick="switchPage('core')">Types &amp; Literals</a>
             <a class="nav-link" href="#s-strings"       onclick="switchPage('core')">Strings</a>
+            <a class="nav-link" href="#s-format-spec"    onclick="switchPage('core')">&#x2192; Format spec</a>
             <a class="nav-link" href="#s-bytes"          onclick="switchPage('core')">&#x2192; Bytes &amp; encoding</a>
             <a class="nav-link" href="#s-str-validation" onclick="switchPage('core')">&#x2192; Validation methods</a>
             <a class="nav-link" href="#s-tstrings"       onclick="switchPage('core')">&#x2192; t-strings (3.14+)</a>
@@ -333,6 +334,45 @@ t = <span class="bi">str</span>.maketrans(<span class="st">"aeiou"</span>, <span
 <span class="kw">import</span> string
 clean = <span class="st">"Hi, World!"</span>.translate(
     <span class="bi">str</span>.maketrans(<span class="st">''</span>,<span class="st">''</span>,string.punctuation))</pre></div>
+    </div>
+  </section>
+
+  <section class="section" id="s-format-spec">
+    <div class="section-header"><div class="section-title">Strings</div><span class="ver-badge">format spec · f-strings · alignment · precision</span></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-label">Format spec mini-language</div><pre><span class="cm"># Grammar: [[fill]align][sign][#][0][width][grouping][.precision][type]</span>
+
+<span class="cm"># Alignment &amp; fill (width 12)</span>
+<span class="bi">print</span>(<span class="st">f"{'left':&lt;12}|"</span>)   <span class="cm"># "left        |"</span>
+<span class="bi">print</span>(<span class="st">f"{'right':&gt;12}|"</span>)  <span class="cm"># "       right|"</span>
+<span class="bi">print</span>(<span class="st">f"{'mid':^12}|"</span>)    <span class="cm"># "    mid     |"</span>
+<span class="bi">print</span>(<span class="st">f"{'x':*^12}|"</span>)     <span class="cm"># "*****x******|"</span>
+
+<span class="cm"># Numbers: precision, sign, grouping</span>
+pi = <span class="bi">3.14159</span>
+<span class="bi">print</span>(<span class="st">f"{pi:.2f}"</span>)        <span class="cm"># "3.14"</span>
+<span class="bi">print</span>(<span class="st">f"{pi:+.2f}"</span>)       <span class="cm"># "+3.14"</span>
+<span class="bi">print</span>(<span class="st">f"{1234567:,}"</span>)     <span class="cm"># "1,234,567"</span>
+<span class="bi">print</span>(<span class="st">f"{1234.5:&gt;12,.2f}"</span>) <span class="cm"># "    1,234.50"</span>
+
+<span class="cm"># Percentages (multiplies by 100)</span>
+<span class="bi">print</span>(<span class="st">f"{0.8734:.1%}"</span>)    <span class="cm"># "87.3%"</span>
+
+<span class="cm"># Integer bases with # prefix</span>
+n = <span class="bi">255</span>
+<span class="bi">print</span>(<span class="st">f"{n:#x} {n:#o} {n:#b}"</span>)  <span class="cm"># 0xff 0o377 0b11111111</span>
+<span class="bi">print</span>(<span class="st">f"{n:08b}"</span>)             <span class="cm"># "11111111"</span>
+
+<span class="cm"># Sign-aware zero padding</span>
+<span class="bi">print</span>(<span class="st">f"{-42:05d}"</span>)         <span class="cm"># "-0042"</span>
+
+<span class="cm"># Debug (3.8+): name AND value</span>
+x = <span class="bi">42</span>
+<span class="bi">print</span>(<span class="st">f"{x=}"</span>)             <span class="cm"># "x=42"</span>
+
+<span class="cm"># Nested fields — width/precision from vars</span>
+w, p = <span class="bi">10</span>, <span class="bi">3</span>
+<span class="bi">print</span>(<span class="st">f"{pi:{w}.{p}f}"</span>)    <span class="cm"># "     3.142"</span></pre></div>
     </div>
   </section>
 

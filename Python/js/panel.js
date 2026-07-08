@@ -172,7 +172,22 @@ function close(){
   document.getElementById('detail-overlay').classList.remove('open');
 }
 function init(){
-  document.querySelectorAll('.card').forEach(function(c){c.addEventListener('click',function(){open(c);});});
+  document.querySelectorAll('.card').forEach(function(c){
+    // Accessibility: make cards keyboard-focusable buttons
+    c.setAttribute('role','button');
+    c.setAttribute('tabindex','0');
+    var lbl=c.querySelector('.card-label');
+    if(lbl){
+      var name=Array.from(lbl.childNodes)
+        .filter(function(n){return n.nodeType===3;})
+        .map(function(n){return n.textContent;}).join('').trim();
+      c.setAttribute('aria-label',name+' — open details');
+    }
+    c.addEventListener('click',function(){open(c);});
+    c.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(c); }
+    });
+  });
   document.getElementById('detail-overlay').addEventListener('click',close);
   document.addEventListener('keydown',function(e){if(e.key==='Escape') close();});
 }

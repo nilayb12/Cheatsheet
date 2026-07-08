@@ -897,6 +897,71 @@ class Point:
 print(vars(Point(1,2)))  # {"x":1,"y":2}`
 },
 
+
+"strings::format spec mini-language": {
+  summary: "The format spec mini-language controls how values render inside f-strings, §c§str.format()§/c§, and §c§format()§/c§. "
+    + "Full grammar: §c§[[fill]align][sign][#][0][width][grouping][.precision][type]§/c§. "
+    + "Alignment: §c§&lt;§/c§ left, §c§&gt;§/c§ right, §c§^§/c§ centre, §c§=§/c§ pad after sign. "
+    + "A fill character can precede the alignment (e.g. §c§*^20§/c§ centres in 20 cols padded with §c§*§/c§). "
+    + "Sign: §c§+§/c§ always show, §c§-§/c§ only negatives (default), space for a leading space on positives. "
+    + "§c§#§/c§ adds §c§0x§/c§/§c§0o§/c§/§c§0b§/c§ prefixes. "
+    + "Grouping: §c§,§/c§ or §c§_§/c§ as thousands separator. "
+    + "§c§.precision§/c§ sets decimal places (§c§f§/c§) or max string length. "
+    + "Type: §c§f§/c§ fixed, §c§e§/c§ scientific, §c§%§/c§ percentage, §c§d/b/o/x§/c§ int bases, §c§g§/c§ general.",
+  when_to_use: "Use f-strings (§c§f\"{x:.2f}\"§/c§) for almost all formatting — fastest and most readable. "
+    + "Use §c§{x:,}§/c§ for thousands separators in reports. "
+    + "Use §c§{x:.1%}§/c§ to render ratios as percentages. "
+    + "Use §c§{x:>10}§/c§ / §c§{x:<10}§/c§ for aligned columnar output. "
+    + "Use §c§{x=}§/c§ (Python 3.8+) for debug output showing both name and value. "
+    + "Nested fields let width/precision come from variables: §c§f\"{x:{w}.{p}f}\"§/c§.",
+  gotchas: ["§c§=§/c§ alignment (pad after sign) only works for numeric types — using it on a string raises §c§ValueError§/c§", "§c§{x:%}§/c§ multiplies by 100 AND appends §c§%§/c§ — §c§f\"{0.5:%}\"§/c§ gives §c§50.000000%§/c§, not §c§0.5%§/c§. Use §c§{x:.1%}§/c§ to control decimals", "Zero-padding with §c§0§/c§ before width is sign-aware: §c§f\"{-5:05d}\"§/c§ gives §c§-0005§/c§, keeping the sign outside the padding"],
+  example: `# ── Alignment & fill (width = 12) ────────────────────
+print(f"{'left':<12}|")     # "left        |"
+print(f"{'right':>12}|")    # "       right|"
+print(f"{'mid':^12}|")      # "    mid     |"
+print(f"{'pad':*^12}|")     # "****pad*****|"
+
+# ── Numbers: precision, sign, grouping ───────────────
+pi = 3.14159265
+print(f"{pi:.2f}")          # "3.14"
+print(f"{pi:.4f}")          # "3.1416"
+print(f"{pi:+.2f}")         # "+3.14"  (always sign)
+print(f"{1234567:,}")       # "1,234,567"
+print(f"{1234567:_}")       # "1_234_567"
+print(f"{1234.5:>12,.2f}")  # "    1,234.50"
+
+# ── Percentages ──────────────────────────────────────
+print(f"{0.8734:.1%}")      # "87.3%"
+print(f"{0.05:.2%}")        # "5.00%"
+
+# ── Integer bases (with # for prefix) ────────────────
+n = 255
+print(f"{n:d} {n:x} {n:o} {n:b}")    # "255 ff 377 11111111"
+print(f"{n:#x} {n:#o} {n:#b}")       # "0xff 0o377 0b11111111"
+print(f"{n:08b}")                    # "11111111" (zero-padded to 8)
+
+# ── Sign-aware zero padding ──────────────────────────
+print(f"{42:05d}")          # "00042"
+print(f"{-42:05d}")         # "-0042"  (sign kept outside pad)
+
+# ── Debug (3.8+): shows name AND value ───────────────
+x = 42; name = "Ada"
+print(f"{x=}")              # "x=42"
+print(f"{name=}")           # "name='Ada'"
+
+# ── Nested fields — width/precision from variables ───
+w, p = 10, 3
+print(f"{pi:{w}.{p}f}")     # "     3.142"
+
+# ── Dates via __format__ ─────────────────────────────
+from datetime import datetime
+now = datetime(2024, 11, 15, 9, 5)
+print(f"{now:%Y-%m-%d %H:%M}")   # "2024-11-15 09:05"
+
+# ── str.format() equivalents ─────────────────────────
+print("{:>8} = {:.2f}".format("total", 3.14159))  # "   total = 3.14"
+print("{0} {1} {0}".format("a", "b"))             # "a b a" (index reuse)`
+},
 "strings::bytes & encoding": {
   summary: "§c§bytes§/c§ is an immutable sequence of integers 0-255; §c§bytearray§/c§ is the mutable equivalent. "
     + "§c§str.encode(encoding, errors)§/c§ converts a string to bytes; §c§bytes.decode(encoding, errors)§/c§ converts back. "

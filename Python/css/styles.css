@@ -498,3 +498,81 @@ body.light .doc-link:hover{background:rgba(180,83,9,.08);border-color:rgba(180,8
 #mob-light-ray-1{left:-6px;top:-6px;position:absolute;width:31px;height:31px;z-index:-1;fill:white;opacity:.1}
 #mob-light-ray-2{left:-50%;top:-50%;position:absolute;width:40px;height:40px;z-index:-1;fill:white;opacity:.1}
 #mob-light-ray-3{left:-13px;top:-13px;position:absolute;width:43px;height:43px;z-index:-1;fill:white;opacity:.1}
+
+/* ══════════════════════════════════════════════════
+   Print stylesheet — expand everything, ink-friendly
+   ══════════════════════════════════════════════════ */
+@media print{
+  /* Force light colours to save ink */
+  :root,body,body.light{
+    --bg:#fff;--surface:#fff;--raised:#f4f4f4;
+    --ink:#111;--muted:#333;--faint:#666;
+    --border:#ccc;--border2:#aaa;--accent:#b45309;--accent2:#8a4008;
+    --kw:#a03000;--fn:#046a4e;--st:#5a2fa0;--cm:#777;--bi:#8a4008;
+    background:#fff!important
+  }
+  /* Hide interactive chrome */
+  #chrome,#sidebar,#page-footer,#mob-drawer,#mob-overlay,
+  #mob-drawer-btn,#search-wrap,#detail-overlay,#detail-panel,
+  .page-tabs,.hdr-right{display:none!important}
+
+  #main-wrapper{margin-left:0!important;padding-top:0!important}
+  main{padding:0!important;max-width:100%!important}
+
+  /* Show ALL pages, stacked */
+  .page-panel{display:block!important;page-break-before:always}
+  .page-panel:first-of-type{page-break-before:avoid}
+
+  /* Cards: expand, avoid splitting across pages */
+  .card{
+    break-inside:avoid;page-break-inside:avoid;
+    border:1px solid #ccc!important;box-shadow:none!important;
+    background:#fff!important;margin-bottom:6px
+  }
+  .card-label{background:#f0f0f0!important;color:#111!important}
+  .card pre{color:#111!important;white-space:pre-wrap;word-break:break-word}
+
+  /* Section headers */
+  .section{break-inside:avoid-page}
+  .section-header{border-left:2px solid #b45309!important}
+
+  /* Grid → single wide column reads better on paper */
+  .card-grid{grid-template-columns:1fr 1fr!important;gap:6px!important}
+
+  /* Syntax colours stay but muted; badges simplified */
+  .new-badge,.ver-badge{border:1px solid #aaa!important;color:#555!important;background:none!important}
+
+  /* Show full URLs for doc links if any are visible */
+  a[href]::after{content:""}
+
+  /* Part headings start each page section */
+  .part-heading{page-break-after:avoid}
+}
+
+/* ── Accessibility ── */
+/* Keyboard focus rings on interactive elements */
+.card:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+  border-color:var(--accent)
+}
+.page-tab:focus-visible,.nav-link:focus-visible,
+#search-input:focus-visible,.copy-btn:focus-visible,
+#mob-drawer-btn:focus-visible,.mob-page-btn:focus-visible,
+#detail-close:focus-visible,.doc-link:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+/* Remove default focus ring only when NOT keyboard-navigating */
+.card:focus:not(:focus-visible){outline:none}
+
+/* Respect reduced-motion preference */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:0.01ms!important;
+    scroll-behavior:auto!important
+  }
+  /* Keep the switch usable but instant */
+  .sun-moon,.slider,.stars{transition:none!important;animation:none!important}
+  #detail-panel{transition:opacity 0.01ms!important}
+}
