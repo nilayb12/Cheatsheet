@@ -3,28 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PySpark & Databricks Cheatsheet</title>
+<title>PySpark &amp; Databricks Cheatsheet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="css/panel.css">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<!-- ═══ CHROME: header + sidebar (one fixed unit) ═══ -->
+<!-- ═══ CHROME: header + sidebar ═══ -->
 <div id="chrome">
 
   <header>
-    <div class="header-logo">⚡</div>
-    <div>
+    <div class="header-logo"><svg class="logo-databricks" viewBox="0 0 300 331" width="24" height="26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#FF3621" d="M283.923 136.449L150.144 213.624L6.88995 131.168L0 134.982V194.844L150.144 281.115L283.923 204.234V235.926L150.144 313.1L6.88995 230.644L0 234.458V244.729L150.144 331L300 244.729V184.867L293.11 181.052L150.144 263.215L16.0766 186.334V154.643L150.144 231.524L300 145.253V86.2713L292.536 81.8697L150.144 163.739L22.9665 90.9663L150.144 17.8998L254.641 78.055L263.828 72.773V65.4371L150.144 0L0 86.2713V95.6613L150.144 181.933L283.923 104.758V136.449Z"/></svg><svg class="logo-spark" viewBox="0 0 68 36" width="60" height="32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="none" fill-rule="evenodd"><path fill="#E25A1C" d="M62.061 17.243c-.058.123-.085.186-.117.245-.85 1.594-1.698 3.19-2.555 4.78-.087.159-.076.254.042.39 1.352 1.558 2.697 3.122 4.044 4.685.047.054.09.113.108.21-.394-.101-.788-.201-1.181-.304-1.634-.427-3.268-.853-4.9-1.285-.152-.04-.221.003-.297.128-.927 1.528-1.86 3.053-2.792 4.578-.048.08-.1.157-.202.223-.075-.407-.152-.814-.225-1.221l-.777-4.314c-.028-.156-.067-.31-.08-.467-.014-.148-.09-.203-.227-.245-1.925-.596-3.848-1.198-5.772-1.8-.084-.026-.167-.06-.257-.141l4.744-1.86c-.058-.045-.096-.08-.138-.108-.984-.628-1.97-1.253-2.95-1.884-.118-.075-.211-.086-.343-.027-1.175.521-2.355 1.033-3.531 1.552-.529.233-1.004.542-1.374.988-.837 1.01-.672 2.158.443 2.86.365.23.78.401 1.192.534 1.886.606 3.779 1.19 5.67 1.777.159.049.233.119.262.288.252 1.44.514 2.877.776 4.315.141.768.216 1.557.595 2.26.146.272.32.537.528.764.75.822 1.799.854 2.593.07.268-.264.498-.576.698-.895.874-1.407 1.735-2.823 2.59-4.24.102-.169.193-.202.38-.153 2.11.558 4.222 1.107 6.333 1.657.436.114.876.155 1.323.073.974-.18 1.4-.91 1.07-1.838-.15-.422-.409-.78-.7-1.116-1.473-1.71-2.944-3.42-4.422-5.125-.121-.14-.124-.24-.04-.396.882-1.64 1.756-3.283 2.634-4.925.21-.393.37-.8.375-1.252.01-1.027-.75-1.867-1.785-2.016-.58-.084-1.118.038-1.66.203-1.323.404-2.648.8-3.974 1.193-.123.037-.17.084-.191.215-.153.92-.319 1.838-.48 2.757-.004.025.003.052.007.109l4.563-1.242" transform="matrix(1 0 0 -1 0 35.974)"/><path fill="#FFF" d="M59.483 3.841c-1.193.002-2.386.008-3.58.003-.157 0-.246.045-.334.177-1.412 2.122-2.83 4.239-4.248 6.357-.045.068-.093.133-.174.246l-.902-6.767h-3.124c.037.3.069.59.107.88.305 2.296.611 4.594.918 6.89.292 2.195.583 4.39.88 6.585.009.065.053.148.107.183 1.075.69 2.154 1.376 3.232 2.062.016.01.038.011.094.027l-.974-7.324.038-.026 5.113 5.59.136-.772c.121-.698.237-1.396.367-2.092.026-.14-.011-.228-.106-.325-1.094-1.13-2.185-2.263-3.276-3.396l-.147-.159c.035-.055.064-.108.1-.157l5.647-7.814c.034-.048.083-.085.126-.127v-.04M22.455 10.614c-.048.24-.082.593-.19.922-.523 1.592-2.18 2.465-3.894 2.071-1.88-.431-3.224-1.89-3.418-3.782-.144-1.4.62-2.749 2.041-3.255 1.145-.408 2.247-.237 3.27.368 1.358.803 2.093 1.995 2.19 3.676zm-8.258-5.917c-.093-.685-.182-1.33-.268-1.977-.114-.858-.228-1.717-.338-2.576-.013-.1-.044-.145-.153-.144-.858.003-1.716.003-2.574.004-.02 0-.039.01-.085.023.051.406.102.812.156 1.218.19 1.425.378 2.849.57 4.273.22 1.628.394 3.264.675 4.882.499 2.864 2.962 5.333 5.854 5.948 1.676.356 3.28.191 4.743-.74 1.46-.927 2.297-2.273 2.488-3.967.27-2.394-.624-4.382-2.348-6.026-1.132-1.08-2.487-1.766-4.05-1.998-1.61-.239-3.124.026-4.482.962-.05.034-.103.064-.188.118M12.798 18.308l-2.821-2.071c-.15.233-.285.466-.442.683-.404.557-.906.973-1.637 1.024-.607.042-1.126-.156-1.54-.597-.37-.395-.418-.957-.072-1.403.38-.49.796-.956 1.221-1.411.705-.753 1.442-1.478 2.142-2.236.637-.689 1.144-1.462 1.301-2.404.187-1.12-.04-2.187-.577-3.171-.994-1.822-2.56-2.88-4.626-3.21-.913-.146-1.823-.117-2.714.142C1.851 3.997 1.03 4.76.5 5.84.313 6.22.17 6.624 0 7.033l3.06 1.615c.035-.084.06-.154.093-.22.174-.343.317-.707.532-1.023.639-.937 1.67-1.222 2.718-.76.268.12.527.288.748.48.675.591.801 1.413.302 2.156-.287.427-.646.81-.995 1.193-.835.914-1.704 1.8-2.52 2.73-.561.642-.943 1.39-1.064 2.25-.132.938.058 1.823.553 2.613 1.23 1.963 3.02 2.985 5.385 2.9 1.348-.048 2.422-.67 3.256-1.703.246-.306.478-.624.73-.956M35.648 7.767c-.156-1.183-.304-2.307-.458-3.43-.008-.057-.053-.134-.102-.157-2.329-1.063-5.395-.915-7.307 1.227-1.028 1.15-1.459 2.516-1.394 4.036.149 3.517 3.105 6.587 6.641 7.016 2.066.251 3.878-.3 5.277-1.882.953-1.078 1.394-2.366 1.329-3.787-.043-.938-.192-1.873-.31-2.807-.168-1.323-.352-2.645-.529-3.967-.006-.047-.016-.094-.026-.153h-2.786c.037.304.071.601.11.898.202 1.527.424 3.052.6 4.582.11.952.041 1.898-.4 2.78-.47.939-1.259 1.435-2.295 1.543-2.145.224-4.186-1.246-4.643-3.328-.302-1.374.174-2.691 1.284-3.42 1.081-.71 2.24-.712 3.418-.251.598.233 1.107.602 1.591 1.1M47.378 16.192l-.38-2.848c-.59 0-1.167.003-1.744-.002-.468-.003-.895-.301-1.036-.732-.055-.168-.075-.349-.099-.526-.293-2.187-.583-4.374-.874-6.562-.074-.551-.145-1.103-.219-1.663h-2.899c.054.42.105.828.16 1.234.188 1.418.376 2.835.567 4.252.165 1.226.312 2.455.507 3.677.26 1.638 1.912 3.093 3.588 3.164.8.035 1.602.006 2.429.006" transform="matrix(1 0 0 -1 0 35.974)"/><path fill="#FFF" fill-rule="nonzero" d="M62.9 3.859v1.207h-.006l-.48-1.207h-.154l-.48 1.207h-.007V3.86h-.242v1.446h.373l.438-1.099.43 1.099h.37V3.859h-.241zm-2.127 1.253V3.859h-.242v1.253h-.46v.193h1.16v-.193h-.458" transform="matrix(1 0 0 -1 0 35.974)"/></g></svg></div>
+    <div class="header-titlewrap">
       <div class="header-title">PySpark &amp; Databricks Cheatsheet</div>
       <div class="header-sub">Imports · DataFrames · Functions · Delta Lake · dbutils · Unity Catalog</div>
     </div>
-    <div class="header-badges">
-      <span class="header-badge">PySpark 3.x</span>
-      <span class="header-badge">Delta Lake</span>
-      <span class="header-badge">Databricks Runtime</span>
+    <div class="header-right">
+      <div id="search-wrap">
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off" spellcheck="false" aria-label="Search cards">
+        <span id="search-kbd">Ctrl+K</span>
+        <div id="search-results" role="listbox"></div>
+      </div>
+      <div class="header-badges">
+        <span class="header-badge">PySpark 4.0</span>
+        <span class="header-badge">DBR 17.3 LTS</span>
+      </div>
+      <label class="switch" title="Toggle theme" aria-label="Toggle theme">
+        <input id="theme-input" type="checkbox" />
+        <div class="slider round">
+          <div class="sun-moon">
+            <svg id="moon-dot-1" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="moon-dot-2" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="moon-dot-3" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="light-ray-1" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="light-ray-2" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="light-ray-3" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="cloud-1" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="cloud-2" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="cloud-3" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="cloud-4" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="cloud-5" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="cloud-6" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+          </div>
+          <div class="stars">
+            <svg id="star-1" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="star-2" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="star-3" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="star-4" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+          </div>
+        </div>
+      </label>
+      <button id="mob-drawer-btn" aria-label="Open menu" onclick="mobDrawerOpen()">☰</button>
     </div>
   </header>
 
@@ -45,6 +76,10 @@
       <a href="#sql"       class="nav-link">SQL interface</a>
       <a href="#write"     class="nav-link">Writing data</a>
       <a href="#perf"      class="nav-link">Performance tips</a>
+      <a href="#variant"   class="nav-link">VARIANT &amp; semi-structured</a>
+      <a href="#plotting"  class="nav-link">Native plotting</a>
+      <a href="#connect"   class="nav-link">Spark Connect</a>
+      <a href="#udtf"      class="nav-link">Python UDTFs</a>
       <div class="nav-section">Databricks</div>
       <a href="#magic"     class="nav-link db">Magic commands</a>
       <a href="#display"   class="nav-link db">Display &amp; output</a>
@@ -52,8 +87,80 @@
       <a href="#delta"     class="nav-link db">Delta Lake</a>
       <a href="#unity"     class="nav-link db">Unity Catalog</a>
       <a href="#paths"     class="nav-link db">I/O paths &amp; SQL</a>
+      <a href="#clustering" class="nav-link db">Liquid clustering</a>
+      <a href="#lakeflow"   class="nav-link db">Lakeflow pipelines</a>
     </div>
   </nav>
+
+  <!-- ═══ Mobile right drawer ═══ -->
+  <div id="mob-overlay" onclick="mobDrawerClose()"></div>
+  <div id="mob-drawer">
+    <div id="mob-drawer-hdr">
+      <span id="mob-drawer-title">Navigation</span>
+      <button id="mob-drawer-close" onclick="mobDrawerClose()" aria-label="Close menu">✕</button>
+    </div>
+    <div id="mob-drawer-body">
+      <div class="mob-drawer-section-label">PySpark</div>
+      <a href="#imports"   class="mob-nav-link" onclick="mobDrawerClose()">Imports</a>
+      <a href="#session"   class="mob-nav-link" onclick="mobDrawerClose()">SparkSession</a>
+      <a href="#create"    class="mob-nav-link" onclick="mobDrawerClose()">Creating DataFrames</a>
+      <a href="#inspect"   class="mob-nav-link" onclick="mobDrawerClose()">Inspection &amp; basic ops</a>
+      <a href="#functions" class="mob-nav-link" onclick="mobDrawerClose()">Key functions (F.*)</a>
+      <a href="#groupby"   class="mob-nav-link" onclick="mobDrawerClose()">GroupBy &amp; aggregations</a>
+      <a href="#joins"     class="mob-nav-link" onclick="mobDrawerClose()">Joins, sort &amp; dedup</a>
+      <a href="#sql"       class="mob-nav-link" onclick="mobDrawerClose()">SQL interface</a>
+      <a href="#write"     class="mob-nav-link" onclick="mobDrawerClose()">Writing data</a>
+      <a href="#perf"      class="mob-nav-link" onclick="mobDrawerClose()">Performance tips</a>
+      <a href="#variant"   class="mob-nav-link" onclick="mobDrawerClose()">VARIANT &amp; semi-structured</a>
+      <a href="#plotting"  class="mob-nav-link" onclick="mobDrawerClose()">Native plotting</a>
+      <a href="#connect"   class="mob-nav-link" onclick="mobDrawerClose()">Spark Connect</a>
+      <a href="#udtf"      class="mob-nav-link" onclick="mobDrawerClose()">Python UDTFs</a>
+      <div class="mob-drawer-section-label">Databricks</div>
+      <a href="#magic"   class="mob-nav-link db" onclick="mobDrawerClose()">Magic commands</a>
+      <a href="#display" class="mob-nav-link db" onclick="mobDrawerClose()">Display &amp; output</a>
+      <a href="#dbutils" class="mob-nav-link db" onclick="mobDrawerClose()">dbutils</a>
+      <a href="#delta"   class="mob-nav-link db" onclick="mobDrawerClose()">Delta Lake</a>
+      <a href="#unity"   class="mob-nav-link db" onclick="mobDrawerClose()">Unity Catalog</a>
+      <a href="#paths"   class="mob-nav-link db" onclick="mobDrawerClose()">I/O paths &amp; SQL</a>
+      <a href="#clustering" class="mob-nav-link db" onclick="mobDrawerClose()">Liquid clustering</a>
+      <a href="#lakeflow"   class="mob-nav-link db" onclick="mobDrawerClose()">Lakeflow pipelines</a>
+      <div class="mob-drawer-divider"></div>
+      <div class="mob-drawer-section-label">Theme</div>
+      <div id="mob-theme-row">
+        <span id="mob-theme-label">Dark mode</span>
+        <label class="switch" title="Toggle theme" aria-label="Toggle theme">
+        <input id="theme-input-mob" type="checkbox" />
+        <div class="slider round">
+          <div class="sun-moon">
+            <svg id="mob-moon-dot-1" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-moon-dot-2" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-moon-dot-3" class="moon-dot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-light-ray-1" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-light-ray-2" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-light-ray-3" class="light-ray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-cloud-1" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-cloud-2" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-cloud-3" class="cloud-dark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-cloud-4" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-cloud-5" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+            <svg id="mob-cloud-6" class="cloud-light" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50"></circle></svg>
+          </div>
+          <div class="stars">
+            <svg id="mob-star-1" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="mob-star-2" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="mob-star-3" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+            <svg id="mob-star-4" class="star" viewBox="0 0 20 20"><path d="M 0 10 C 10 10,10 10 ,0 10 C 10 10 , 10 10 , 10 20 C 10 10 , 10 10 , 20 10 C 10 10 , 10 10 , 10 0 C 10 10,10 10 ,0 10 Z"></path></svg>
+          </div>
+        </div>
+      </label>
+      </div>
+      <div class="mob-drawer-divider"></div>
+      <div class="mob-drawer-section-label">Shortcuts</div>
+      <div class="mob-shortcut-row"><kbd>[</kbd><span>toggle sidebar</span></div>
+      <div class="mob-shortcut-row"><kbd>Ctrl+K</kbd><span>search</span></div>
+      <div class="mob-shortcut-row"><kbd>Esc</kbd><span>close panel</span></div>
+    </div>
+  </div>
 
 </div><!-- end #chrome -->
 
@@ -61,7 +168,8 @@
 <div id="main-wrapper">
 <main>
 
-  <!-- ─── PART 1: PYSPARK ─── -->
+<div data-part="pyspark">
+<!-- ─── PART 1: PYSPARK ─── -->
   <h2 class="part-heading">PySpark <span>Core</span></h2>
   <p class="part-sub">Standard API — works on any Spark cluster. Click any card for details.</p>
 
@@ -498,7 +606,102 @@ spark.sparkContext.<span class="fn">setLogLevel</span>(<span class="st">"WARN"</
     <div class="part-divider-line"></div>
   </div>
 
-  <!-- ─── PART 2: DATABRICKS ─── -->
+  <!-- VARIANT & SEMI-STRUCTURED -->
+  <div class="section" id="variant">
+    <div class="section-header">
+      <span class="section-title">VARIANT &amp; semi-structured</span>
+      <span class="new-badge">Spark 4.0+</span>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">VARIANT type</div>
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> functions <span class="kw">as</span> F
+
+<span class="cm"># JSON string → VARIANT (no fixed schema)</span>
+df = df.withColumn(<span class="st">"v"</span>, F.parse_json(<span class="st">"json_str"</span>))
+
+<span class="cm"># Extract typed nested fields</span>
+df.select(
+  F.variant_get(<span class="st">"v"</span>, <span class="st">"$.user.id"</span>, <span class="st">"int"</span>),
+  F.variant_get(<span class="st">"v"</span>, <span class="st">"$.event"</span>, <span class="st">"string"</span>),
+)
+
+<span class="cm"># SQL colon path: v:user.id::int</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- NATIVE PLOTTING -->
+  <div class="section" id="plotting">
+    <div class="section-header">
+      <span class="section-title">Native plotting</span>
+      <span class="new-badge">Spark 4.0+</span>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">.plot() API</div>
+        <pre><span class="cm"># Plotly-based, no .toPandas() needed</span>
+monthly.plot.line(x=<span class="st">"month"</span>, y=<span class="st">"revenue"</span>)
+
+df.groupBy(<span class="st">"category"</span>).count() \
+  .plot.bar(x=<span class="st">"category"</span>, y=<span class="st">"count"</span>)
+
+df.plot.hist(column=<span class="st">"amount"</span>, bins=<span class="kw">50</span>)
+df.plot.scatter(x=<span class="st">"days"</span>, y=<span class="st">"ltv"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPARK CONNECT -->
+  <div class="section" id="connect">
+    <div class="section-header">
+      <span class="section-title">Spark Connect</span>
+      <span class="new-badge">Spark 4.0+</span>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">client-server</div>
+        <pre><span class="cm"># Thin client (~1.5MB, no JVM):</span>
+<span class="cm"># pip install pyspark-client</span>
+
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> SparkSession
+
+spark = (SparkSession.builder
+  .remote(<span class="st">"sc://spark-host:15002"</span>)
+  .getOrCreate())
+
+<span class="cm"># DataFrame API identical afterwards</span>
+spark.read.table(<span class="st">"sales"</span>).show()</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- PYTHON UDTFs -->
+  <div class="section" id="udtf">
+    <div class="section-header">
+      <span class="section-title">Python UDTFs</span>
+      <span class="new-badge">Spark 4.0+</span>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">table functions</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> udtf
+
+<span class="cm"># One row in → many rows out</span>
+<span class="kw">@udtf</span>(returnType=<span class="st">"word: string, length: int"</span>)
+<span class="kw">class</span> SplitWords:
+    <span class="kw">def</span> eval(self, text):
+        <span class="kw">for</span> w <span class="kw">in</span> (text <span class="kw">or</span> <span class="st">""</span>).split():
+            <span class="kw">yield</span> (w, len(w))
+
+<span class="cm"># LATERAL split_words(body) in SQL</span></pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div data-part="databricks">
+<!-- ─── PART 2: DATABRICKS ─── -->
   <h2 class="part-heading"><span>Databricks</span> Specifics</h2>
   <p class="part-sub">Delta Lake · dbutils · Unity Catalog · Notebook magic</p>
 
@@ -825,23 +1028,75 @@ spark.<span class="fn">sql</span>(<span class="st">"MSCK REPAIR TABLE db.tbl"</s
     </div>
   </div>
 
+  <!-- LIQUID CLUSTERING -->
+  <div class="section" id="clustering">
+    <div class="section-header">
+      <span class="section-title">Liquid clustering</span>
+      <span class="db-badge">Databricks</span>
+      <span class="new-badge">DBR 15.2+</span>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">CLUSTER BY</div>
+        <pre><span class="cm">-- Replaces PARTITIONED BY + ZORDER</span>
+<span class="kw">CREATE TABLE</span> prod.sales.events (
+  event_ts <span class="kw">TIMESTAMP</span>, user_id <span class="kw">BIGINT</span>
+) <span class="kw">USING DELTA</span>
+<span class="kw">CLUSTER BY</span> (event_ts, user_id);
+
+<span class="cm">-- Or let Databricks pick keys (UC managed)</span>
+<span class="kw">CLUSTER BY AUTO</span>;
+
+<span class="cm">-- Incremental; FULL to recluster (DBR 16.0+)</span>
+<span class="kw">OPTIMIZE</span> prod.sales.events <span class="kw">FULL</span>;</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAKEFLOW PIPELINES -->
+  <div class="section" id="lakeflow">
+    <div class="section-header">
+      <span class="section-title">Lakeflow pipelines</span>
+      <span class="db-badge">Databricks</span>
+      <span class="new-badge">was DLT</span>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">declarative ETL</div>
+        <pre><span class="cm"># DLT renamed → Lakeflow (code still compatible)</span>
+<span class="kw">from</span> pyspark <span class="kw">import</span> pipelines <span class="kw">as</span> dp
+
+<span class="kw">@dp.table</span>                <span class="cm"># streaming table</span>
+<span class="kw">def</span> bronze_events():
+    <span class="kw">return</span> spark.readStream...
+
+<span class="kw">@dp.materialized_view</span>    <span class="cm"># was @dlt.table</span>
+<span class="kw">def</span> gold():
+    <span class="kw">return</span> spark.read.table(<span class="st">"silver"</span>)...
+
+<span class="cm"># AUTO CDC replaces apply_changes()</span>
+dp.create_auto_cdc_flow(...)</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 </main>
 
 <footer id="page-footer">
-  PySpark &amp; Databricks Cheatsheet &nbsp;·&nbsp; Click any card to explore details &nbsp;·&nbsp; Press <kbd style="font-family:monospace;background:#1e1e26;border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:1px 5px;font-size:0.7rem">[</kbd> to toggle sidebar
+  PySpark &amp; Databricks Cheatsheet &nbsp;·&nbsp; Click any card to explore &nbsp;·&nbsp; <kbd>[</kbd> sidebar &nbsp;·&nbsp; <kbd>Ctrl+K</kbd> search
 </footer>
 </div><!-- end #main-wrapper -->
 
 <!-- ═══ DETAIL MODAL ═══ -->
 <div id="detail-overlay"></div>
-
 <div id="detail-panel" role="dialog" aria-modal="true">
   <div id="detail-header">
     <div>
       <div id="detail-section-label"></div>
       <div id="detail-card-title"></div>
     </div>
-    <span id="detail-hint">esc to close</span>
     <button id="detail-close" onclick="closePanel()" aria-label="Close">✕</button>
   </div>
   <div id="detail-inner">
@@ -854,6 +1109,7 @@ spark.<span class="fn">sql</span>(<span class="st">"MSCK REPAIR TABLE db.tbl"</s
 <script src="data/cards.js"></script>
 <script src="js/layout.js"></script>
 <script src="js/panel.js"></script>
-
+<script src="js/theme.js"></script>
+<script src="js/search.js"></script>
 </body>
 </html>

@@ -1,69 +1,87 @@
 /* ================================================================
    PySpark & Databricks Cheatsheet — layout.js
-   Sidebar toggle + scroll offset sync
+   Single-page: sidebar toggle + mobile drawer + scroll-offset sync
    ================================================================ */
-
 (function () {
   'use strict';
 
   function syncLayout() {
-    const header  = document.querySelector('#chrome > header');
+    var header = document.querySelector('#chrome > header');
     if (!header) return;
-    const headerH = header.getBoundingClientRect().height;
+    var h = header.getBoundingClientRect().height;
 
-    // Push scrollable content below fixed chrome
-    const wrapper = document.getElementById('main-wrapper');
-    if (wrapper) wrapper.style.paddingTop = headerH + 'px';
+    var wrapper = document.getElementById('main-wrapper');
+    if (wrapper) wrapper.style.paddingTop = h + 'px';
 
-    // Footer margin mirrors main-wrapper
-    const footer = document.getElementById('page-footer');
+    var footer = document.getElementById('page-footer');
     if (footer) {
-      const collapsed = document.body.classList.contains('nav-collapsed');
-      footer.style.marginLeft = collapsed
-        ? 'var(--sidebar-collapsed)'
-        : 'var(--sidebar-w)';
+      var collapsed = document.body.classList.contains('nav-collapsed');
+      footer.style.marginLeft = collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-w)';
       footer.style.transition = 'margin-left var(--transition)';
     }
 
-    // Anchor scroll offset = header height + small breathing room
-    const scrollGap = headerH + 16;
+    var gap = h + 16;
     document.querySelectorAll('.section, .part-divider, .part-heading')
-      .forEach(el => { el.style.scrollMarginTop = scrollGap + 'px'; });
+      .forEach(function (el) { el.style.scrollMarginTop = gap + 'px'; });
   }
 
   function toggleNav() {
-    const sidebar  = document.getElementById('sidebar');
-    const navIcon  = document.getElementById('nav-icon');
-    const footer   = document.getElementById('page-footer');
-
+    var sidebar = document.getElementById('sidebar');
+    var navIcon = document.getElementById('nav-icon');
+    var footer  = document.getElementById('page-footer');
     sidebar.classList.toggle('collapsed');
     document.body.classList.toggle('nav-collapsed');
-
-    const collapsed = sidebar.classList.contains('collapsed');
+    var collapsed = sidebar.classList.contains('collapsed');
     if (navIcon) navIcon.textContent = collapsed ? '☰' : '✕';
-
-    if (footer) {
-      footer.style.marginLeft = collapsed
-        ? 'var(--sidebar-collapsed)'
-        : 'var(--sidebar-w)';
-    }
+    if (footer) footer.style.marginLeft = collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-w)';
   }
 
-  // Keyboard shortcut: [ to toggle sidebar
+  /* ── Mobile drawer ── */
+  function mobDrawerOpen() {
+    document.getElementById('mob-drawer').classList.add('open');
+    document.getElementById('mob-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    syncMobTheme();
+  }
+  function mobDrawerClose() {
+    document.getElementById('mob-drawer').classList.remove('open');
+    document.getElementById('mob-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function syncMobTheme() {
+    var desk = document.getElementById('theme-input');
+    var mob  = document.getElementById('theme-input-mob');
+    if (desk && mob) mob.checked = desk.checked;
+    var lbl = document.getElementById('mob-theme-label');
+    if (lbl) lbl.textContent = document.body.classList.contains('light') ? 'Light mode' : 'Dark mode';
+  }
+
   function onKeydown(e) {
-    if (e.key === '[' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      const tag = document.activeElement?.tagName;
-      if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
-        toggleNav();
-      }
-    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === '[') toggleNav();
+    if (e.key === 'Escape') mobDrawerClose();
   }
 
-  window.addEventListener('DOMContentLoaded', syncLayout);
+  window.addEventListener('DOMContentLoaded', function () {
+    syncLayout();
+    // Mobile theme toggle → drive theme through desktop toggle
+    var mob = document.getElementById('theme-input-mob');
+    var desk = document.getElementById('theme-input');
+    if (mob && desk) {
+      mob.addEventListener('change', function () {
+        desk.checked = mob.checked;
+        desk.dispatchEvent(new Event('change'));
+        var lbl = document.getElementById('mob-theme-label');
+        if (lbl) lbl.textContent = mob.checked ? 'Dark mode' : 'Light mode';
+      });
+    }
+  });
   window.addEventListener('resize', syncLayout);
   document.addEventListener('keydown', onKeydown);
 
-  // Expose globally for inline onclick
   window.toggleNav = toggleNav;
-
+  window.mobDrawerOpen = mobDrawerOpen;
+  window.mobDrawerClose = mobDrawerClose;
 }());
