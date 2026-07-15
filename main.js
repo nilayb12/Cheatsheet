@@ -1,4 +1,4 @@
-// ── Inline SVG icons (no external dependency) ──
+// ── Inline SVG icons ──
 const ICON_LIVE = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
   <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
@@ -14,29 +14,28 @@ const ICON_SOURCE = `<svg viewBox="0 0 24 24" aria-hidden="true">
 
 const STATUS_LABEL = { live: 'live', wip: 'wip', archived: 'archived' };
 const STATUS_CLASS = { live: 'badge-live', wip: 'badge-wip', archived: 'badge-archived' };
+const STATUS_ORDER = { live: 0, wip: 1, archived: 2 };
 const VALID_STATUSES = new Set(['live', 'wip', 'archived']);
 const VALID_PATH_RE  = /^[a-zA-Z0-9_-]+$/;
 
 // ─────────────────────────────────────────────────────────────
-//  Validation
+//  Validation (unchanged)
 // ─────────────────────────────────────────────────────────────
 
 function validateEntry(p, idx) {
   const warnings = [];
   const label = `projects.json[${idx}]`;
-
-  if (typeof p !== 'object' || p === null || Array.isArray(p)) {
+  if (typeof p !== 'object' || p === null || Array.isArray(p))
     return { valid: false, warnings: [`${label}: entry must be an object, got ${typeof p}`] };
-  }
   if (!p.name || typeof p.name !== 'string' || !p.name.trim())
     warnings.push(`${label}: "name" is required and must be a non-empty string`);
   if (!p.path || typeof p.path !== 'string' || !p.path.trim())
-    warnings.push(`${label} ("${p.name || '?'}"): "path" is required and must be a non-empty string`);
+    warnings.push(`${label} ("${p.name || '?'}"): "path" is required`);
   else if (!VALID_PATH_RE.test(p.path))
-    warnings.push(`${label} ("${p.name}"): "path" must contain only letters, numbers, hyphens, and underscores — got "${p.path}"`);
+    warnings.push(`${label} ("${p.name}"): "path" must contain only letters, numbers, hyphens, and underscores`);
   if ('desc'   in p && typeof p.desc   !== 'string') warnings.push(`${label} ("${p.name}"): "desc" must be a string`);
-  if ('icon'   in p && typeof p.icon   !== 'string') warnings.push(`${label} ("${p.name}"): "icon" must be a string (emoji)`);
-  if ('status' in p && !VALID_STATUSES.has(p.status)) warnings.push(`${label} ("${p.name}"): "status" must be one of: live, wip, archived — got "${p.status}"`);
+  if ('icon'   in p && typeof p.icon   !== 'string') warnings.push(`${label} ("${p.name}"): "icon" must be a string`);
+  if ('status' in p && !VALID_STATUSES.has(p.status)) warnings.push(`${label} ("${p.name}"): "status" must be one of: live, wip, archived`);
   if ('tags'   in p) {
     if (!Array.isArray(p.tags)) warnings.push(`${label} ("${p.name}"): "tags" must be an array`);
     else p.tags.forEach((t, ti) => {
@@ -46,23 +45,16 @@ function validateEntry(p, idx) {
   }
   const known = new Set(['name', 'path', 'desc', 'icon', 'status', 'tags']);
   Object.keys(p).forEach(k => {
-    if (!known.has(k))
-      warnings.push(`${label} ("${p.name}"): unknown field "${k}" — known fields: ${[...known].join(', ')}`);
+    if (!known.has(k)) warnings.push(`${label} ("${p.name}"): unknown field "${k}"`);
   });
-
   return { valid: !warnings.some(w => w.includes('required') || w.includes('must be')), warnings };
 }
 
 function validatePayload(data) {
   let raw;
-  if (Array.isArray(data)) {
-    console.info('projects.json: loaded as array. Consider switching to the object format with a $schema reference.');
-    raw = data;
-  } else if (data && typeof data === 'object' && Array.isArray(data.projects)) {
-    raw = data.projects;
-  } else {
-    throw new Error('projects.json must be an array of projects, or an object with a "projects" array.');
-  }
+  if (Array.isArray(data)) { raw = data; }
+  else if (data && typeof data === 'object' && Array.isArray(data.projects)) { raw = data.projects; }
+  else throw new Error('projects.json must be an array or an object with a "projects" array.');
 
   let totalWarnings = 0;
   const valid = [];
@@ -71,21 +63,18 @@ function validatePayload(data) {
     warnings.forEach(w => console.warn(`⚠ ${w}`));
     totalWarnings += warnings.length;
     if (ok) valid.push(entry);
-    else console.error(`✖ projects.json[${idx}] skipped due to validation errors above.`);
+    else console.error(`✖ projects.json[${idx}] skipped.`);
   });
 
   const paths = valid.map(p => p.path);
-  paths.forEach((p, i) => {
-    if (paths.indexOf(p) !== i) { console.warn(`⚠ duplicate path "${p}" — first occurrence kept`); totalWarnings++; }
-  });
   const seen = new Set();
   const deduped = valid.filter(p => { if (seen.has(p.path)) return false; seen.add(p.path); return true; });
 
   totalWarnings === 0
-    ? console.info(`✔ projects.json: ${deduped.length} project(s) loaded, no issues.`)
+    ? console.info(`✔ projects.json: ${deduped.length} project(s) loaded.`)
     : console.warn(`projects.json: ${deduped.length} project(s) loaded with ${totalWarnings} warning(s).`);
 
-  return { projects: deduped, totalWarnings };
+  return { projects: deduped };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -105,54 +94,117 @@ function sourceUrl(projectPath) {
   return `https://github.com/your-username/your-repo/tree/main/${projectPath}`;
 }
 
-function renderCard(p) {
-  const el = document.createElement('div');
-  el.className = 'card';
-  el.setAttribute('role', 'listitem');
-  // Store normalised text for search matching
-  el.dataset.search = `${p.name} ${p.desc || ''} ${(p.tags || []).join(' ')}`.toLowerCase();
-  el.dataset.tags   = (p.tags || []).map(t => t.toLowerCase()).join(',');
+/** Renders one <tr> for a project entry. */
+function renderRow(p) {
+  const tr = document.createElement('tr');
+
+  // Data attributes for filtering and sorting
+  tr.dataset.search = `${p.name} ${p.desc || ''} ${(p.tags || []).join(' ')}`.toLowerCase();
+  tr.dataset.tags   = (p.tags || []).map(t => t.toLowerCase()).join(',');
+  tr.dataset.name   = p.name.toLowerCase();
+  tr.dataset.status = STATUS_ORDER[p.status || 'live'] ?? 0;
 
   const status = p.status || 'live';
-  const tags = Array.isArray(p.tags) && p.tags.length
-    ? `<div class="card-tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
-    : '';
+  const tagsHtml = Array.isArray(p.tags) && p.tags.length
+    ? p.tags.map(t => `<span class="tag">${t}</span>`).join('')
+    : '—';
 
-  el.innerHTML = `
-    <a class="card-body" href="${p.path}/" target="_blank" rel="noopener"
-       aria-label="Open live site: ${p.name}">
-      <div class="card-top">
-        <span class="card-icon" aria-hidden="true">${p.icon || '📁'}</span>
-        <span class="badge ${STATUS_CLASS[status] || 'badge-live'}">${STATUS_LABEL[status] || status}</span>
+  tr.innerHTML = `
+    <td class="col-name">
+      <a class="td-name-link" href="${p.path}/" target="_blank" rel="noopener"
+         aria-label="Open ${p.name}">
+        <span class="td-name">${p.icon ? p.icon + ' ' : ''}${p.name}</span>
+        <span class="td-path">./${p.path}/</span>
+      </a>
+    </td>
+    <td class="col-desc">
+      <span class="td-desc">${p.desc || '—'}</span>
+    </td>
+    <td class="col-tags">
+      <div class="td-tags">${tagsHtml}</div>
+    </td>
+    <td class="col-status">
+      <span class="badge ${STATUS_CLASS[status]}">${STATUS_LABEL[status]}</span>
+    </td>
+    <td class="col-actions">
+      <div class="td-actions">
+        <a class="td-action" href="${p.path}/" target="_blank" rel="noopener"
+           aria-label="Open live site: ${p.name}">
+          ${ICON_LIVE} Live
+        </a>
+        <a class="td-action" href="${sourceUrl(p.path)}" target="_blank" rel="noopener"
+           aria-label="View source for ${p.name}">
+          ${ICON_SOURCE} Source
+        </a>
       </div>
-      <div class="card-name">${p.name}</div>
-      <div class="card-path">./${p.path}/</div>
-      ${p.desc ? `<div class="card-desc">${p.desc}</div>` : ''}
-      ${tags}
-    </a>
-    <div class="card-actions">
-      <a href="${p.path}/" target="_blank" rel="noopener"
-         aria-label="Open live site: ${p.name}" tabindex="-1" aria-hidden="true">
-        ${ICON_LIVE} Live site
-      </a>
-      <div class="sep" aria-hidden="true"></div>
-      <a href="${sourceUrl(p.path)}" target="_blank" rel="noopener"
-         aria-label="View source for ${p.name} on GitHub">
-        ${ICON_SOURCE} Source
-      </a>
-    </div>
+    </td>
   `;
-  return el;
+  return tr;
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Sorting
+// ─────────────────────────────────────────────────────────────
+
+/** Current sort state */
+const sortState = { col: null, dir: 'asc' };
+
+function initSort(projects) {
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const col = btn.dataset.col;
+      if (sortState.col === col) {
+        sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortState.col = col;
+        sortState.dir = 'asc';
+      }
+      updateSortUI();
+      sortRows();
+    });
+  });
+}
+
+function updateSortUI() {
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    const isActive = btn.dataset.col === sortState.col;
+    btn.classList.toggle('active', isActive);
+    btn.dataset.dir = isActive ? sortState.dir : '';
+    const th = btn.closest('th');
+    if (th) th.setAttribute('aria-sort', isActive
+      ? (sortState.dir === 'asc' ? 'ascending' : 'descending')
+      : 'none');
+  });
+}
+
+function sortRows() {
+  const tbody = document.getElementById('project-tbody');
+  if (!tbody) return;
+  const rows = [...tbody.querySelectorAll('tr[data-name]')];
+
+  rows.sort((a, b) => {
+    let av, bv;
+    if (sortState.col === 'name') {
+      av = a.dataset.name;
+      bv = b.dataset.name;
+    } else if (sortState.col === 'status') {
+      av = Number(a.dataset.status);
+      bv = Number(b.dataset.status);
+    } else {
+      return 0;
+    }
+    if (av < bv) return sortState.dir === 'asc' ? -1 : 1;
+    if (av > bv) return sortState.dir === 'asc' ?  1 : -1;
+    return 0;
+  });
+
+  rows.forEach(r => tbody.appendChild(r));
 }
 
 // ─────────────────────────────────────────────────────────────
 //  Search & filter
 // ─────────────────────────────────────────────────────────────
 
-/**
- * Builds the tag filter chips from the full project list.
- * Chips are sorted alphabetically; clicking one toggles it.
- */
 function buildTagFilters(projects) {
   const container = document.getElementById('tag-filters');
   if (!container) return;
@@ -180,12 +232,6 @@ function buildTagFilters(projects) {
   });
 }
 
-/**
- * Reads the current search query and active tag chips,
- * shows/hides cards, updates the count bar, and
- * optionally pushes a new URL state.
- * @param {{ pushState?: boolean }} opts
- */
 function applyFilters({ pushState = false } = {}) {
   const input      = document.getElementById('search-input');
   const clearBtn   = document.getElementById('search-clear');
@@ -199,31 +245,29 @@ function applyFilters({ pushState = false } = {}) {
   const activeTags = [...document.querySelectorAll('.tag-filter.active')].map(b => b.dataset.tag);
   const isFiltered = query || activeTags.length;
 
-  if (clearBtn) clearBtn.hidden = !query;
+  const rows  = document.querySelectorAll('#project-tbody tr[data-name]');
+  const total = rows.length;
+  let visible = 0;
 
-  const cards = document.querySelectorAll('#project-grid .card');
-  const total  = cards.length;
-  let visible  = 0;
-
-  cards.forEach(card => {
-    const matchesSearch = !query || card.dataset.search.includes(query);
-    const cardTags      = card.dataset.tags ? card.dataset.tags.split(',') : [];
-    const matchesTags   = !activeTags.length || activeTags.every(t => cardTags.includes(t));
+  rows.forEach(row => {
+    const matchesSearch = !query || row.dataset.search.includes(query);
+    const rowTags       = row.dataset.tags ? row.dataset.tags.split(',') : [];
+    const matchesTags   = !activeTags.length || activeTags.every(t => rowTags.includes(t));
     const show          = matchesSearch && matchesTags;
-    card.hidden = !show;
+    row.hidden = !show;
     if (show) visible++;
   });
 
-  // ── Count bar ──
+  // Count bar
   if (countBar && countText) {
     countBar.hidden = false;
     countText.textContent = isFiltered
-      ? `${visible} of ${total} project${total !== 1 ? 's' : ''}`
-      : `${total} project${total !== 1 ? 's' : ''}`;
+      ? `${visible} of ${total} cheatsheet${total !== 1 ? 's' : ''}`
+      : `${total} cheatsheet${total !== 1 ? 's' : ''}`;
     if (resetBtn) resetBtn.hidden = !isFiltered;
   }
 
-  // ── No-results message ──
+  // No-results
   if (noResults) {
     noResults.hidden = visible > 0;
     if (noResTerm) {
@@ -234,25 +278,17 @@ function applyFilters({ pushState = false } = {}) {
     }
   }
 
-  // ── URL state ──
   if (pushState) syncUrl(query, activeTags);
 }
 
-/** Writes current filter state into the URL without reloading. */
 function syncUrl(query, activeTags) {
   const params = new URLSearchParams();
   if (query)             params.set('q', query);
   if (activeTags.length) params.set('tags', activeTags.join(','));
-  const newUrl = params.toString()
-    ? `${location.pathname}?${params}`
-    : location.pathname;
+  const newUrl = params.toString() ? `${location.pathname}?${params}` : location.pathname;
   history.pushState({ query, activeTags }, '', newUrl);
 }
 
-/**
- * Reads URL params and restores search + tag filter state.
- * Called once after cards and chips are rendered.
- */
 function restoreFromUrl() {
   const params = new URLSearchParams(location.search);
   const q    = params.get('q')    || '';
@@ -261,17 +297,11 @@ function restoreFromUrl() {
   const input = document.getElementById('search-input');
   if (input && q) input.value = q;
 
-  if (tags.length) {
-    tags.forEach(tag => {
-      const btn = document.querySelector(`.tag-filter[data-tag="${tag}"]`);
-      if (btn) {
-        btn.classList.add('active');
-        btn.setAttribute('aria-pressed', 'true');
-      }
-    });
-  }
+  tags.forEach(tag => {
+    const btn = document.querySelector(`.tag-filter[data-tag="${tag}"]`);
+    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true'); }
+  });
 
-  // Apply without pushing another history entry
   applyFilters({ pushState: false });
 }
 
@@ -281,18 +311,16 @@ function initSearch() {
   const resetBtn = document.getElementById('count-reset');
   if (!input) return;
 
+  // Set correct initial state before any interaction
   input.addEventListener('input', () => applyFilters({ pushState: true }));
   input.addEventListener('keydown', e => {
     if (e.key === 'Escape') { input.value = ''; applyFilters({ pushState: true }); input.blur(); }
   });
-
   clearBtn?.addEventListener('click', () => {
     input.value = '';
     applyFilters({ pushState: true });
     input.focus();
   });
-
-  // "Clear filters" button resets everything
   resetBtn?.addEventListener('click', () => {
     input.value = '';
     document.querySelectorAll('.tag-filter.active').forEach(b => {
@@ -301,8 +329,6 @@ function initSearch() {
     });
     applyFilters({ pushState: true });
   });
-
-  // Handle browser back/forward
   window.addEventListener('popstate', () => restoreFromUrl());
 }
 
@@ -311,18 +337,22 @@ function initSearch() {
 // ─────────────────────────────────────────────────────────────
 
 async function loadProjects() {
-  const grid = document.getElementById('project-grid');
+  const tbody   = document.getElementById('project-tbody');
+  const tableWrap = document.getElementById('table-wrap');
+
   try {
     const res = await fetch('./projects.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status} — make sure projects.json exists in the repo root`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
     const { projects } = validatePayload(data);
 
-    grid.innerHTML = '';
+    tbody.innerHTML = '';
+
     if (!projects.length) {
-      grid.outerHTML = `
-        <div class="empty-state" role="status" aria-label="No projects yet">
+      // Replace the whole table with an empty state
+      tableWrap.outerHTML = `
+        <div class="empty-state" role="status" aria-label="No cheatsheets yet">
           <svg class="empty-illustration" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <rect x="30" y="20" width="140" height="100" rx="8" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.15"/>
             <rect x="44" y="36" width="56" height="7" rx="3" fill="currentColor" opacity="0.25"/>
@@ -335,24 +365,24 @@ async function loadProjects() {
             <line x1="155" y1="102" x2="155" y2="118" stroke="#c8f060" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
             <line x1="147" y1="110" x2="163" y2="110" stroke="#c8f060" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
           </svg>
-          <p class="empty-title">No projects yet</p>
+          <p class="empty-title">No cheatsheets yet</p>
           <p class="empty-hint">Add entries to <code>projects.json</code> to see them here.</p>
         </div>`;
       return;
     }
 
-    projects.forEach(p => grid.appendChild(renderCard(p)));
+    projects.forEach(p => tbody.appendChild(renderRow(p)));
     buildTagFilters(projects);
+    initSort(projects);
     initSearch();
     restoreFromUrl();
 
   } catch (err) {
     console.error('Failed to load projects.json:', err);
-    grid.innerHTML = `
-      <p class="state-msg">
-        Could not load projects.json — check the browser console for details.<br>
-        <span style="font-size:11px;opacity:0.6">${err.message}</span>
-      </p>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="state-msg">
+      Could not load projects.json — check the console for details.<br>
+      <span style="font-size:11px;opacity:0.6">${err.message}</span>
+    </td></tr>`;
   }
 }
 

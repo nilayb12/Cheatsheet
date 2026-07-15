@@ -21,7 +21,7 @@
 </head>
 <body>
 
-<a class="skip-link" href="#project-grid">Skip to projects</a>
+<a class="skip-link" href="#project-table">Skip to cheatsheets</a>
 
 <header>
   <p class="eyebrow">github.com/nilayb12/Cheatsheet</p>
@@ -48,7 +48,7 @@
         autocomplete="off"
         spellcheck="false"
       >
-      <button class="search-clear" id="search-clear" aria-label="Clear search" hidden>
+      <button class="search-clear" id="search-clear" aria-label="Clear search">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
@@ -62,8 +62,29 @@
     <button class="count-reset" id="count-reset" hidden>Clear filters</button>
   </div>
 
-  <div class="grid" id="project-grid" role="list" aria-label="Projects">
-    <p class="state-msg" aria-live="polite">Loading…</p>
+  <div class="table-wrap" id="table-wrap">
+    <table class="project-table" id="project-table" aria-label="Cheatsheets">
+      <thead>
+        <tr>
+          <th class="col-name" aria-sort="none">
+            <button class="sort-btn" data-col="name" aria-label="Sort by name">
+              Name <span class="sort-icon" aria-hidden="true"></span>
+            </button>
+          </th>
+          <th class="col-desc">Description</th>
+          <th class="col-tags">Tags</th>
+          <th class="col-status" aria-sort="none">
+            <button class="sort-btn" data-col="status" aria-label="Sort by status">
+              Status <span class="sort-icon" aria-hidden="true"></span>
+            </button>
+          </th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="project-tbody">
+        <tr><td colspan="5" class="state-msg">Loading…</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <p class="no-results" id="no-results" hidden>

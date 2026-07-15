@@ -98,7 +98,7 @@ h1 {
   margin: 1.5rem 0 2.5rem;
 }
 
-/* ── Grid ── */
+/* ── Main content wrapper ── */
 .grid-wrap {
   max-width: 860px;
   margin: 0 auto;
@@ -107,46 +107,7 @@ h1 {
   flex: 1;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-/* ── Cards ── */
-.card {
-  background: var(--surface);
-  padding: 1.25rem 1.5rem 1rem;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  position: relative;
-  outline-offset: -2px;
-}
-.card:focus-visible {
-  outline: 2px solid var(--accent);
-}
-
-.card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.2rem;
-}
-
-.card-icon {
-  font-size: 18px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-/* ── Status badge ── */
+/* ── Status badge (shared) ── */
 .badge {
   font-size: 9px;
   letter-spacing: 0.08em;
@@ -154,41 +115,14 @@ h1 {
   font-weight: 500;
   border-radius: 3px;
   padding: 2px 6px;
-  flex-shrink: 0;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .badge-live     { background: rgba(200,240,96,0.12); color: #c8f060; }
 .badge-wip      { background: rgba(255,180,50,0.12);  color: #f4a820; }
 .badge-archived { background: rgba(255,255,255,0.06); color: var(--muted); }
 
-.card-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-  letter-spacing: 0.02em;
-}
-
-.card-path {
-  font-size: 11px;
-  color: var(--accent);
-  opacity: 0.65;
-}
-
-.card-desc {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.5;
-  margin-top: 0.15rem;
-  flex: 1;
-}
-
-/* ── Tags ── */
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 0.4rem;
-}
+/* ── Tags (shared) ── */
 .tag {
   font-size: 10px;
   letter-spacing: 0.04em;
@@ -200,38 +134,210 @@ h1 {
   color: var(--muted);
 }
 
-/* ── Card action links ── */
-.card-actions {
-  display: flex;
-  gap: 0;
-  margin-top: 0.8rem;
-  border-top: 1px solid var(--border);
-  padding-top: 0.75rem;
+/* ── Table ── */
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
 }
-.card-actions a {
-  flex: 1;
+
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Column widths */
+.col-name    { width: 22%; }
+.col-desc    { width: 34%; }
+.col-tags    { width: 20%; }
+.col-status  { width: 10%; }
+.col-actions { width: 14%; }
+
+/* ── Header row ── */
+.project-table thead tr {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.project-table th {
+  padding: 0;
+  text-align: left;
+  font-weight: 400;
+}
+
+.project-table th.col-desc,
+.project-table th.col-tags,
+.project-table th.col-actions {
+  padding: 0 1rem;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  height: 40px;
+  vertical-align: middle;
+}
+
+/* ── Sort buttons (Name, Status headers) ── */
+.sort-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 5px;
+  width: 100%;
+  height: 40px;
+  padding: 0 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.12s;
+  text-align: left;
+  white-space: nowrap;
+}
+.sort-btn:hover { color: var(--text); }
+.sort-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.sort-btn.active { color: var(--accent); }
+
+.sort-icon {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1.5px;
+  opacity: 0.35;
+  transition: opacity 0.12s;
+}
+.sort-btn:hover .sort-icon,
+.sort-btn.active .sort-icon { opacity: 1; }
+
+/* Default (unsorted): both arrows shown faintly */
+.sort-icon::before,
+.sort-icon::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+}
+.sort-icon::before {
+  border-bottom: 4px solid currentColor;
+}
+.sort-icon::after {
+  border-top: 4px solid currentColor;
+}
+
+/* asc: only up arrow */
+.sort-btn[data-dir="asc"] .sort-icon::after  { opacity: 0.2; }
+/* desc: only down arrow */
+.sort-btn[data-dir="desc"] .sort-icon::before { opacity: 0.2; }
+
+/* ── Body rows ── */
+.project-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.12s;
+}
+.project-table tbody tr:last-child { border-bottom: none; }
+.project-table tbody tr:hover { background: var(--surface-hover); }
+.project-table tbody tr[hidden] { display: none; }
+
+.project-table td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* ── Name cell ── */
+.td-name-link {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-decoration: none;
+  color: inherit;
+}
+.td-name-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.td-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-name-link:hover .td-name { color: var(--accent); }
+.td-path {
+  font-size: 10px;
+  color: var(--accent);
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Desc cell ── */
+.td-desc {
   font-size: 11px;
   color: var(--muted);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Tags cell ── */
+.td-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* ── Status cell ── */
+.col-status { text-align: center; }
+.project-table td.col-status { text-align: center; }
+
+/* ── Actions cell ── */
+.td-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.td-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--muted);
   text-decoration: none;
-  padding: 5px 4px;
+  padding: 4px 7px;
   border-radius: 4px;
-  transition: color 0.12s, background 0.12s;
+  border: 1px solid transparent;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+  white-space: nowrap;
 }
-.card-actions a:hover {
+.td-action:hover {
   color: var(--text);
-  background: rgba(255,255,255,0.05);
+  border-color: var(--border);
+  background: rgba(255,255,255,0.04);
 }
-.card-actions a:focus-visible {
+.td-action:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-.card-actions a svg {
-  width: 12px;
-  height: 12px;
+.td-action svg {
+  width: 11px;
+  height: 11px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
@@ -239,21 +345,63 @@ h1 {
   stroke-linejoin: round;
   flex-shrink: 0;
 }
-.card-actions .sep {
-  width: 1px;
-  background: var(--border);
-  margin: 2px 0;
-  flex: none;
-}
 
-/* ── Loading / error state ── */
+/* ── State rows ── */
 .state-msg {
-  grid-column: 1 / -1;
-  padding: 3rem 2rem;
   text-align: center;
+  padding: 3rem 2rem;
   font-size: 13px;
   color: var(--muted);
   font-style: italic;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem 4rem;
+  text-align: center;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.empty-illustration {
+  width: 160px;
+  height: auto;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+.empty-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.empty-hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.empty-hint code {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+
+/* ── Responsive: collapse desc + tags on narrow screens ── */
+@media (max-width: 600px) {
+  .col-desc, .col-tags,
+  .project-table td:nth-child(2),
+  .project-table td:nth-child(3) { display: none; }
+  .col-name    { width: 50%; }
+  .col-status  { width: 20%; }
+  .col-actions { width: 30%; }
 }
 
 /* ── Footer ── */
@@ -290,7 +438,6 @@ footer code {
 @media (max-width: 540px) {
   header, .divider, .grid-wrap, footer { padding-left: 1.25rem; padding-right: 1.25rem; }
   header { padding-top: 2.5rem; }
-  .grid  { grid-template-columns: 1fr; }
 }
 
 /* ── Controls (search + tag filters) ── */
