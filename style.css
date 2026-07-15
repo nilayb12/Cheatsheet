@@ -138,23 +138,21 @@ h1 {
 .table-wrap {
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
 }
 
 .project-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
-/* Column widths */
-.col-name    { width: 22%; }
-.col-desc    { width: 34%; }
-.col-tags    { width: 20%; }
-.col-status  { width: 10%; }
-.col-actions { width: 14%; }
+/* Minimum widths — let columns grow naturally beyond these */
+.col-name    { min-width: 160px; }
+.col-desc    { min-width: 180px; width: 99%; } /* width:99% lets desc absorb spare space */
+.col-tags    { min-width: 100px; white-space: nowrap; }
+.col-status  { min-width: 80px;  white-space: nowrap; }
+.col-actions { min-width: 130px; white-space: nowrap; }
 
 /* ── Header row ── */
 .project-table thead tr {
@@ -273,18 +271,12 @@ h1 {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .td-name-link:hover .td-name { color: var(--accent); }
 .td-path {
   font-size: 10px;
   color: var(--accent);
   opacity: 0.6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ── Desc cell ── */
