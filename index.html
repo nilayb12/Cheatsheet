@@ -6,13 +6,12 @@
 <title>Cheatsheet Hub</title>
 
 <!-- ── SEO & Open Graph ── -->
-<!-- Update these meta tags to match your repo -->
-<meta name="description" content="A collection of projects deployed from a single GitHub repository.">
-<meta property="og:title"       content="Projects Hub">
-<meta property="og:description" content="A collection of projects deployed from a single GitHub repository.">
+<meta name="description" content="A collection of cheatsheets deployed from a single GitHub repository.">
+<meta property="og:title"       content="Cheatsheet Hub">
+<meta property="og:description" content="A collection of cheatsheets deployed from a single GitHub repository.">
 <meta property="og:type"        content="website">
-<!-- <meta property="og:url"    content="https://your-username.github.io/your-repo/"> -->
-<!-- <meta property="og:image" content="https://your-username.github.io/your-repo/og-image.png"> -->
+<meta property="og:url"         content="https://nilayb12.github.io/Cheatsheet/">
+<meta property="og:image"       content="https://nilayb12.github.io/Cheatsheet/og-image.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,6 +55,11 @@
       </button>
     </div>
     <div class="tag-filters" id="tag-filters" role="group" aria-label="Filter by tag"></div>
+  </div>
+
+  <div class="count-bar" id="count-bar" hidden>
+    <span id="count-text" aria-live="polite" aria-atomic="true"></span>
+    <button class="count-reset" id="count-reset" hidden>Clear filters</button>
   </div>
 
   <div class="grid" id="project-grid" role="list" aria-label="Projects">

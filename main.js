@@ -157,7 +157,6 @@ function buildTagFilters(projects) {
   const container = document.getElementById('tag-filters');
   if (!container) return;
 
-  // Collect unique tags across all projects
   const allTags = [...new Set(
     projects.flatMap(p => (p.tags || []).map(t => t.toLowerCase()))
   )].sort();
@@ -175,7 +174,7 @@ function buildTagFilters(projects) {
       const active = btn.getAttribute('aria-pressed') === 'true';
       btn.setAttribute('aria-pressed', String(!active));
       btn.classList.toggle('active', !active);
-      applyFilters();
+      applyFilters({ pushState: true });
     });
     container.appendChild(btn);
   });
@@ -183,30 +182,48 @@ function buildTagFilters(projects) {
 
 /**
  * Reads the current search query and active tag chips,
- * then shows/hides cards accordingly.
+ * shows/hides cards, updates the count bar, and
+ * optionally pushes a new URL state.
+ * @param {{ pushState?: boolean }} opts
  */
-function applyFilters() {
-  const query      = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+function applyFilters({ pushState = false } = {}) {
+  const input      = document.getElementById('search-input');
   const clearBtn   = document.getElementById('search-clear');
   const noResults  = document.getElementById('no-results');
   const noResTerm  = document.getElementById('no-results-term');
+  const countBar   = document.getElementById('count-bar');
+  const countText  = document.getElementById('count-text');
+  const resetBtn   = document.getElementById('count-reset');
+
+  const query      = (input?.value || '').toLowerCase().trim();
   const activeTags = [...document.querySelectorAll('.tag-filter.active')].map(b => b.dataset.tag);
+  const isFiltered = query || activeTags.length;
 
   if (clearBtn) clearBtn.hidden = !query;
 
   const cards = document.querySelectorAll('#project-grid .card');
-  let visible = 0;
+  const total  = cards.length;
+  let visible  = 0;
 
   cards.forEach(card => {
     const matchesSearch = !query || card.dataset.search.includes(query);
     const cardTags      = card.dataset.tags ? card.dataset.tags.split(',') : [];
     const matchesTags   = !activeTags.length || activeTags.every(t => cardTags.includes(t));
     const show          = matchesSearch && matchesTags;
-
     card.hidden = !show;
     if (show) visible++;
   });
 
+  // ── Count bar ──
+  if (countBar && countText) {
+    countBar.hidden = false;
+    countText.textContent = isFiltered
+      ? `${visible} of ${total} project${total !== 1 ? 's' : ''}`
+      : `${total} project${total !== 1 ? 's' : ''}`;
+    if (resetBtn) resetBtn.hidden = !isFiltered;
+  }
+
+  // ── No-results message ──
   if (noResults) {
     noResults.hidden = visible > 0;
     if (noResTerm) {
@@ -216,19 +233,77 @@ function applyFilters() {
       noResTerm.textContent = parts.join(' + ');
     }
   }
+
+  // ── URL state ──
+  if (pushState) syncUrl(query, activeTags);
+}
+
+/** Writes current filter state into the URL without reloading. */
+function syncUrl(query, activeTags) {
+  const params = new URLSearchParams();
+  if (query)             params.set('q', query);
+  if (activeTags.length) params.set('tags', activeTags.join(','));
+  const newUrl = params.toString()
+    ? `${location.pathname}?${params}`
+    : location.pathname;
+  history.pushState({ query, activeTags }, '', newUrl);
+}
+
+/**
+ * Reads URL params and restores search + tag filter state.
+ * Called once after cards and chips are rendered.
+ */
+function restoreFromUrl() {
+  const params = new URLSearchParams(location.search);
+  const q    = params.get('q')    || '';
+  const tags = params.get('tags') ? params.get('tags').split(',') : [];
+
+  const input = document.getElementById('search-input');
+  if (input && q) input.value = q;
+
+  if (tags.length) {
+    tags.forEach(tag => {
+      const btn = document.querySelector(`.tag-filter[data-tag="${tag}"]`);
+      if (btn) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+      }
+    });
+  }
+
+  // Apply without pushing another history entry
+  applyFilters({ pushState: false });
 }
 
 function initSearch() {
   const input    = document.getElementById('search-input');
   const clearBtn = document.getElementById('search-clear');
+  const resetBtn = document.getElementById('count-reset');
   if (!input) return;
 
-  input.addEventListener('input', applyFilters);
+  input.addEventListener('input', () => applyFilters({ pushState: true }));
   input.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { input.value = ''; applyFilters(); input.blur(); }
+    if (e.key === 'Escape') { input.value = ''; applyFilters({ pushState: true }); input.blur(); }
   });
 
-  clearBtn?.addEventListener('click', () => { input.value = ''; applyFilters(); input.focus(); });
+  clearBtn?.addEventListener('click', () => {
+    input.value = '';
+    applyFilters({ pushState: true });
+    input.focus();
+  });
+
+  // "Clear filters" button resets everything
+  resetBtn?.addEventListener('click', () => {
+    input.value = '';
+    document.querySelectorAll('.tag-filter.active').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    applyFilters({ pushState: true });
+  });
+
+  // Handle browser back/forward
+  window.addEventListener('popstate', () => restoreFromUrl());
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -269,6 +344,7 @@ async function loadProjects() {
     projects.forEach(p => grid.appendChild(renderCard(p)));
     buildTagFilters(projects);
     initSearch();
+    restoreFromUrl();
 
   } catch (err) {
     console.error('Failed to load projects.json:', err);

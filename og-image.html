@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!--
+  og-image.html — Open Graph preview image generator
+  ─────────────────────────────────────────────────────
+  HOW TO USE:
+    1. Open this file in any browser
+    2. Set your browser window to exactly 1200 × 630 px
+       (use DevTools device emulation for precision)
+    3. Screenshot the page
+    4. Save as og-image.png in the repo root
+    5. The og:image meta tag in index.html already points to it
+
+  CUSTOMISE:
+    - Change the title, subtitle, and repo name below
+    - Adjust --accent if you re-themed the hub
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>OG Image Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0e0e0f;
+    --surface:   #161618;
+    --border:    rgba(255,255,255,0.07);
+    --text:      #f0ede8;
+    --muted:     #7a7a82;
+    --accent:    #c8f060;
+    --font-serif:'Instrument Serif', Georgia, serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html, body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+  }
+
+  .frame {
+    width: 1200px;
+    height: 630px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 72px 96px;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* ── Decorative grid lines ── */
+  .frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* ── Accent glow ── */
+  .frame::after {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(circle, rgba(200,240,96,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── Eyebrow ── */
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 22px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* ── Title ── */
+  h1 {
+    font-family: var(--font-serif);
+    font-size: 88px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 28px;
+  }
+
+  /* ── Subtitle ── */
+  .subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    line-height: 1.5;
+    max-width: 560px;
+  }
+
+  /* ── Mini card previews (decorative, right side) ── */
+  .cards-preview {
+    position: absolute;
+    right: 72px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0.55;
+  }
+
+  .mini-card {
+    width: 220px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .mini-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mini-icon { font-size: 14px; }
+  .mini-badge {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(200,240,96,0.12);
+    color: #c8f060;
+    border-radius: 3px;
+    padding: 2px 5px;
+  }
+  .mini-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .mini-path {
+    font-size: 9px;
+    color: var(--accent);
+    opacity: 0.6;
+  }
+  .mini-bar {
+    height: 1px;
+    background: var(--border);
+    margin-top: 4px;
+  }
+  .mini-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .mini-action {
+    font-size: 9px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  /* ── Bottom rule ── */
+  .bottom-rule {
+    position: absolute;
+    bottom: 48px;
+    left: 96px;
+    right: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .bottom-rule::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="eyebrow">github.com/nilayb12/Cheatsheet</div>
+
+  <h1>Cheatsheets</h1>
+
+  <p class="subtitle">A collection of cheatsheets deployed<br>from a single repository.</p>
+
+  <!-- Decorative card previews -->
+  <div class="cards-preview">
+    <div class="mini-card">
+      <div class="mini-card-top">
+        <span class="mini-icon">🐍</span>
+        <span class="mini-badge">live</span>
+      </div>
+      <div class="mini-name">Python</div>
+      <div class="mini-path">./Python/</div>
+      <div class="mini-bar"></div>
+      <div class="mini-actions">
+        <span class="mini-action">↗ Live site</span>
+        <span class="mini-action">⌥ Source</span>
+      </div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card-top">
+        <span class="mini-icon">⚡</span>
+        <span class="mini-badge">live</span>
+      </div>
+      <div class="mini-name">PySpark_Databricks</div>
+      <div class="mini-path">./PySpark_Databricks/</div>
+      <div class="mini-bar"></div>
+      <div class="mini-actions">
+        <span class="mini-action">↗ Live site</span>
+        <span class="mini-action">⌥ Source</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-rule">
+    <span>Hosted on GitHub Pages</span>
+    <span>nilayb12.github.io/Cheatsheet</span>
+  </div>
+
+</div>
+</body>
+</html>
