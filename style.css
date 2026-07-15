@@ -45,7 +45,7 @@ body {
 /* ── Header ── */
 header {
   padding: 4rem 2rem 2rem;
-  max-width: 860px;
+  max-width: 1020px;
   margin: 0 auto;
   width: 100%;
 }
@@ -87,7 +87,7 @@ h1 {
 
 /* ── Divider ── */
 .divider {
-  max-width: 860px;
+  max-width: 1020px;
   margin: 0 auto;
   width: 100%;
   padding: 0 2rem;
@@ -100,7 +100,7 @@ h1 {
 
 /* ── Main content wrapper ── */
 .grid-wrap {
-  max-width: 860px;
+  max-width: 1020px;
   margin: 0 auto;
   width: 100%;
   padding: 0 2rem;
@@ -138,7 +138,9 @@ h1 {
 .table-wrap {
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .project-table {
@@ -406,7 +408,7 @@ h1 {
 
 /* ── Footer ── */
 footer {
-  max-width: 860px;
+  max-width: 1020px;
   margin: 3rem auto 2rem;
   width: 100%;
   padding: 0 2rem;
