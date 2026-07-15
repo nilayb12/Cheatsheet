@@ -2,27 +2,19 @@
   "$schema": "./projects.schema.json",
   "projects": [
     {
-      "name": "Project One",
-      "path": "project-one",
-      "desc": "A short description of what this project does.",
-      "icon": "🌐",
-      "tags": ["tool"],
+      "name": "PySpark_Databricks",
+      "path": "PySpark_Databricks",
+      "desc": "",
+      "icon": "📁",
+      "tags": [],
       "status": "live"
     },
     {
-      "name": "Project Two",
-      "path": "project-two",
-      "desc": "Another project living in its own subfolder.",
-      "icon": "🚀",
-      "tags": ["viz"],
-      "status": "wip"
-    },
-    {
-      "name": "Project Three",
-      "path": "project-three",
-      "desc": "Yet another site deployed from the same repo.",
-      "icon": "🎨",
-      "tags": ["internal"],
+      "name": "Python",
+      "path": "Python",
+      "desc": "",
+      "icon": "📁",
+      "tags": [],
       "status": "live"
     }
   ]
