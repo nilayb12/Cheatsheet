@@ -22,7 +22,7 @@ function toggleNav(){
   if(ic) ic.textContent=c?'☰':'✕';
   if(ft) ft.style.marginLeft=c?'var(--sc)':'var(--sw)';
 }
-function switchPage(pid){
+function switchPage(pid, keepScroll){
   if(window.loadPageCards) window.loadPageCards(pid);
   document.querySelectorAll('.page-panel').forEach(function(p){p.classList.remove('active');});
   var panel=document.getElementById('page-'+pid);
@@ -37,9 +37,11 @@ function switchPage(pid){
     var links=document.getElementById('nav-links-'+btn.dataset.page);
     if(links) links.classList.toggle('hidden',!active);
   });
-  var w=document.getElementById('main-wrapper');
-  if(w) w.scrollTop=0;
-  window.scrollTo(0,0);
+  if(!keepScroll){
+    var w=document.getElementById('main-wrapper');
+    if(w) w.scrollTop=0;
+    window.scrollTo(0,0);
+  }
   try{sessionStorage.setItem('py-page',pid);}catch(e){}
 }
 function onKey(e){

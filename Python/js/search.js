@@ -144,22 +144,25 @@ function setActive(box, idx){
 }
 
 function pick(entry){
-  // Switch to the right page
-  if(typeof window.switchPage === 'function') window.switchPage(entry.page);
-  // Small delay to let page render before opening panel
-  setTimeout(function(){
-    // Scroll card into view then simulate click
-    entry.cardEl.scrollIntoView({behavior:'smooth', block:'center'});
-    entry.cardEl.click();
-  }, 80);
-  // Clear search
+  // Clear the search UI first so it's out of the way
   var input = document.getElementById('search-input');
   var box   = document.getElementById('search-results');
-  input.value = '';
-  box.innerHTML = '';
-  box.classList.remove('open');
-  input.blur();
+  if(input) input.value = '';
+  if(box){ box.innerHTML = ''; box.classList.remove('open'); }
+  if(input) input.blur();
   activeIdx = -1;
+
+  // Switch to the right page (may lazy-load that page's cards)
+  if(typeof window.switchPage === 'function') window.switchPage(entry.page, true);
+
+  // Let the page switch + lazy card render settle, then scroll & flash
+  setTimeout(function(){
+    entry.cardEl.scrollIntoView({behavior:'smooth', block:'center'});
+    entry.cardEl.classList.add('sr-flash');
+    setTimeout(function(){ entry.cardEl.classList.remove('sr-flash'); }, 1600);
+    // Open the detail panel after the smooth scroll has visibly settled
+    setTimeout(function(){ entry.cardEl.click(); }, 320);
+  }, 120);
 }
 
 // ── Wire up events ────────────────────────────────────────────────

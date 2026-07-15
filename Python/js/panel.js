@@ -153,19 +153,33 @@ function open(card){
   document.getElementById('detail-panel').classList.add('open');
   document.getElementById('detail-overlay').classList.add('open');
   var key=makeKey(section,cardLabel);
-  var data=getCardData(key);
-  setTimeout(function(){
+  // Card data for another page may still be loading (lazy <script>).
+  // Poll briefly for it instead of giving up after one read.
+  var tries=0, MAX_TRIES=40;   // 40 × 50ms ≈ 2s ceiling
+  (function attempt(){
+    var data=getCardData(key);
     if(data){
       var r=render(data,section);
       document.getElementById('detail-left').innerHTML=r.left;
       document.getElementById('detail-right').innerHTML=r.right;
+      return;
+    }
+    if(tries++ < MAX_TRIES){
+      // Show a loading state on the first pass, then keep polling
+      if(tries===1){
+        document.getElementById('detail-left').innerHTML=
+          '<div class="detail-heading">Overview</div>'
+          +'<p class="detail-prose">Card data loading…</p>';
+        document.getElementById('detail-right').innerHTML='';
+      }
+      setTimeout(attempt,50);
     } else {
       document.getElementById('detail-left').innerHTML=
         '<div class="detail-heading">Overview</div>'
-        +'<p class="detail-prose">Card data loading...</p>';
+        +'<p class="detail-prose">Card data unavailable. Try reopening this card.</p>';
       document.getElementById('detail-right').innerHTML='';
     }
-  },80);
+  })();
 }
 function close(){
   document.getElementById('detail-panel').classList.remove('open');
