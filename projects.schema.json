@@ -41,6 +41,10 @@
           "minLength": 1
         },
         "uniqueItems": true
+      },
+      "lastUpdated": {
+        "type": ["string", "null"],
+        "description": "ISO 8601 date of the last commit to this subfolder. Set automatically by the GitHub Actions workflow — do not edit manually."
       }
     }
   }

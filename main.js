@@ -94,20 +94,49 @@ function sourceUrl(projectPath) {
   return `https://github.com/your-username/your-repo/tree/main/${projectPath}`;
 }
 
+/**
+ * Formats an ISO date string as a relative label ("3 days ago")
+ * with the absolute date as a tooltip title attribute.
+ */
+function formatUpdated(iso) {
+  if (!iso) return { relative: '—', absolute: '' };
+  const date  = new Date(iso);
+  const now   = new Date();
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  let relative;
+  if (diffDays === 0)       relative = 'today';
+  else if (diffDays === 1)  relative = 'yesterday';
+  else if (diffDays < 7)    relative = `${diffDays} days ago`;
+  else if (diffDays < 30)   relative = `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+  else if (diffDays < 365)  relative = `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
+  else                      relative = `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) > 1 ? 's' : ''} ago`;
+
+  const absolute = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  return { relative, absolute };
+}
+
 /** Renders one <tr> for a project entry. */
 function renderRow(p) {
   const tr = document.createElement('tr');
 
   // Data attributes for filtering and sorting
-  tr.dataset.search = `${p.name} ${p.desc || ''} ${(p.tags || []).join(' ')}`.toLowerCase();
-  tr.dataset.tags   = (p.tags || []).map(t => t.toLowerCase()).join(',');
-  tr.dataset.name   = p.name.toLowerCase();
-  tr.dataset.status = STATUS_ORDER[p.status || 'live'] ?? 0;
+  tr.dataset.search  = `${p.name} ${p.desc || ''} ${(p.tags || []).join(' ')}`.toLowerCase();
+  tr.dataset.tags    = (p.tags || []).map(t => t.toLowerCase()).join(',');
+  tr.dataset.name    = p.name.toLowerCase();
+  tr.dataset.status  = STATUS_ORDER[p.status || 'live'] ?? 0;
+  tr.dataset.updated = p.lastUpdated || '';
 
   const status = p.status || 'live';
   const tagsHtml = Array.isArray(p.tags) && p.tags.length
     ? p.tags.map(t => `<span class="tag">${t}</span>`).join('')
     : '—';
+
+  const { relative, absolute } = formatUpdated(p.lastUpdated);
+  const updatedHtml = absolute
+    ? `<span class="td-updated" title="${absolute}">${relative}</span>`
+    : `<span class="td-updated">—</span>`;
 
   tr.innerHTML = `
     <td class="col-name">
@@ -126,6 +155,7 @@ function renderRow(p) {
     <td class="col-status">
       <span class="badge ${STATUS_CLASS[status]}">${STATUS_LABEL[status]}</span>
     </td>
+    <td class="col-updated">${updatedHtml}</td>
     <td class="col-actions">
       <div class="td-actions">
         <a class="td-action" href="${p.path}/" target="_blank" rel="noopener"
@@ -190,6 +220,10 @@ function sortRows() {
     } else if (sortState.col === 'status') {
       av = Number(a.dataset.status);
       bv = Number(b.dataset.status);
+    } else if (sortState.col === 'updated') {
+      // Sort by ISO date string — empty dates go to the bottom
+      av = a.dataset.updated || '0000';
+      bv = b.dataset.updated || '0000';
     } else {
       return 0;
     }
@@ -379,7 +413,7 @@ async function loadProjects() {
 
   } catch (err) {
     console.error('Failed to load projects.json:', err);
-    tbody.innerHTML = `<tr><td colspan="5" class="state-msg">
+    tbody.innerHTML = `<tr><td colspan="6" class="state-msg">
       Could not load projects.json — check the console for details.<br>
       <span style="font-size:11px;opacity:0.6">${err.message}</span>
     </td></tr>`;
