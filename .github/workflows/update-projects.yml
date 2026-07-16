@@ -111,6 +111,20 @@ jobs:
           }
 
           const updatedProjects = [...kept, ...newEntries];
+
+          // ── Fetch last commit date for each subfolder ──
+          const { execSync } = require('child_process');
+          updatedProjects.forEach(p => {
+            try {
+              const iso = execSync(
+                `git log -1 --format=%cI -- "${p.path}/"`,
+                { encoding: 'utf8' }
+              ).trim();
+              p.lastUpdated = iso || null;
+            } catch (_) {
+              p.lastUpdated = p.lastUpdated || null;
+            }
+          });
           const updated = {
             $schema: './projects.schema.json',
             projects: updatedProjects
