@@ -1,17 +1,17 @@
-# Projects Hub
+# Cheatsheets
 
-A single GitHub Pages site that links out to every project deployed from this repository. Add a subfolder with an `index.html`, update `projects.json`, and it appears on the hub automatically.
+A single GitHub Pages site that links out to every Cheatsheet from this repository. Add a subfolder with an `index.html`, update `projects.json`, and it appears on the hub automatically.
 
 ## Live site
 
 ```
-https://your-username.github.io/your-repo/
+https://nilayb12.github.io/Cheatsheet/
 ```
 
 ## Repo structure
 
 ```
-your-repo/
+Cheatsheet/
 ├── index.html                      # Hub page (structure only)
 ├── style.css                       # All styles and design tokens
 ├── main.js                         # Fetch, validate, render, search/filter
@@ -26,7 +26,7 @@ your-repo/
     └── index.html                  # Each project lives in its own subfolder
 ```
 
-## Adding a project
+## Adding a Cheatsheet
 
 **Option 1 — manually** (instant):
 
